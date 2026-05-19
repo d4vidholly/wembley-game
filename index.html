@@ -14,19 +14,27 @@
   <title>Wembley Board Game - Match Simulator</title>
 
   <link rel="stylesheet" href="styles.css">
-  <script src="script.js" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap" rel="stylesheet">
-  <style>
-
-  </style>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://docs.google.com">
+  <link rel="preconnect" href="https://spreadsheets.google.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js" integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb" crossorigin="anonymous" defer></script>
+  <script src="script.js" defer></script>
 </head>
-<body>
+<body data-theme="classic">
 
  <header>
-  <img class="wembley-logo" src="wembley_logo_white.png">
-
+  <img class="wembley-logo" src="images/wembley_logo_white.png">
+  <div class="skin-nav" id="skinNav">
+    <button class="skin-toggle" id="skinToggle">Classic &#9662;</button>
+    <div class="skin-dropdown hidden" id="skinDropdown">
+      <button class="skin-option" data-skin="classic">Classic</button>
+      <button class="skin-option" data-skin="classic-dark">Classic Dark</button>
+      <button class="skin-option skin-option--locked" data-skin="retro">Retro <span class="skin-soon-tag">soon</span></button>
+      <button class="skin-option skin-option--locked" data-skin="dark">Dark <span class="skin-soon-tag">soon</span></button>
+    </div>
+  </div>
   </header>
 
 
@@ -41,85 +49,26 @@
         <!-- Home Team Panel -->
         <div class="team-panel">
           <div>Home</div>
-          <img id="teamBadgeHome" src="arsenal.svg" alt="Home Team Badge" width="100">
+          <img id="teamBadgeHome" src="badges/arsenal.svg" alt="Home Team Badge" width="100">
 
           <div id="starContainerHome" style="display: none;"></div>
           <div id="divisionTextHome"></div>
 
           <select class="team-select" id="teamSelectHome">
-            <div class="option-list">
-            <option value="Arsenal" selected>Arsenal</option>
-            <option value="Barnsley">Barnsley</option>
-            <option value="Blackpool">Blackpool</option>
-            <option value="Bournemouth">Bournemouth</option>
-            <option value="Bristol City">Bristol City</option>
-            <option value="Carlisle">Carlisle</option>
-            <option value="Charlton Ath">Charlton Ath</option>
-            <option value="Chelsea">Chelsea</option>
-            <option value="C Palace">C Palace</option>
-            <option value="Exeter">Exeter City</option>
-            <option value="Fulham">Fulham</option>
-            <option value="Hereford">Hereford</option>
-            <option value="Hull City">Hull City</option>
-            <option value="Liverpool">Liverpool</option>
-            <option value="Leeds Utd">Leeds Utd</option>
-            <option value="Man City">Man City</option>
-            <option>Man Utd</option>
-            <option>Newcastle</option>
-            <option value="Nottm Forest">Nottm Forest</option>
-            <option value="Port Vale">Port Vale</option>
-            <option value="Portsmouth">Portsmouth</option>
-            <option value="Reading">Reading</option>
-            <option value="Rochdale">Rochdale</option>
-            <option value="Shrewsbury">Shrewsbury</option>
-            <option value="Spalding Utd">Spalding Utd</option>
-            <option value="Southend">Southend</option>
-            <option value="Tottenham">Tottenham</option>
-            <option>Tow Law</option>
-            <option value="Watford">Watford</option>
-            <option value="West Brom">West Brom</option>
-            <option value="West Ham">West Ham</option>
-            <option value="Wimbledon">Wimbledon</option>
-            <option>Wolves</option>
-            <option>Wrexham</option>
-          </div>
+            <option value="">Loading teams…</option>
           </select>
 
-          <div class="Key-Player-Toggle">
-
-            <div class="key-player-checkbox" >
-
-              <div class="international-stars tooltip">
-                <p>Select International Stars:</p>
-                <span class="tooltip-text">International Stars can be added to your team to improve your odds.
-                  <br>
-                  <br>
-                  Goalkeeper: +1 Goal
-                  <br>
-                  Defender: +1 Goal
-                  <br>
-                  Midfielder: +1 Goal
-                  <br>
-                  Striker: +1 Goal
-                </span>
-              </div>
-
-              <div class="home-team-stars">
-
-              <input type="checkbox" id="position1" name="position1" value="Goalkeeper">
-              <label for="position1"> Goalkeeper</label><br>
-              <input type="checkbox" id="position2" name="position2" value="Defender">
-              <label for="position2"> Defender</label><br>
-              <input type="checkbox" id="position3" name="position3" value="Midfielder">
-              <label for="position3"> Midfielder</label><br>
-              <input type="checkbox" id="position4" name="position4" value="Striker">
-              <label for="position4"> Striker</label><br>
-            
+          <div class="cup-heroes-trigger">
+            <div class="cup-heroes-title">Cup Heroes</div>
+            <div class="hero-slots" id="heroSlotsHome">
+              <div class="hero-slot" data-position="GK"><span class="hero-slot-label">GK</span></div>
+              <div class="hero-slot" data-position="DEF"><span class="hero-slot-label">DEF</span></div>
+              <div class="hero-slot" data-position="MID"><span class="hero-slot-label">MID</span></div>
+              <div class="hero-slot" data-position="STR"><span class="hero-slot-label">STR</span></div>
             </div>
-            
-            </div>
+            <button class="cup-heroes-info-btn" onclick="openCupHeroesInfoModal()">How does this work?</button>
           </div>
-          
+
 
         </div>
       
@@ -140,125 +89,56 @@
         </div>
 
         <div class="match-details-stadium">
-          <img class="icon" id="stadium-icon" src="icon-stadium.svg" alt="icon stadium" width="20">
-        <div id="stadiumTextHome">
-          <p></p>
+          <div class="info-icon-box">
+            <img id="stadium-icon" src="icons/icon-stadium.svg" alt="icon stadium" width="20">
+          </div>
+          <div class="info-icon-text">
+            <div id="stadiumTextHome"></div>
+            <div id="kickOffTime"></div>
+          </div>
         </div>
-        <div id="kickOffTime">
-        <p></p>
-        </div>
-    
-      </div>
 
-      <div class="match-details-stadium">
-
-      <div class="match-details-money">
-
-        <div class="money-item">
-
-          <img class="icon tooltip" id="ticket-icon" src="icon-ticket.svg" alt="icon ticket" width="20">
-  
+        <div class="match-details-stadium">
+          <div class="info-icon-box">
+            <img id="ticket-icon" src="icons/icon-ticket.svg" alt="icon ticket" width="20">
+          </div>
           <div id="prizeMoneyContainer">
             <p id="prizeMoney"></p>
           </div>
-  
+        </div>
+
+        <div class="match-details-stadium">
+          <div class="info-icon-box">
+            <img id="rules-icon" src="icons/icon-rules.svg" alt="icon rules" width="20">
           </div>
-
-
-      </div>
-      </div> 
-
-      <div class="match-details-stadium">
-
-        <img class="icon" id="rules-icon" src="icon-rules.svg" alt="icon rules" width="20">
-  
           <div id="ifDrawContainer">
-          <p id="ifDraw"></p>
+            <p id="ifDraw"></p>
           </div>
-  
-        </div> 
+        </div>
 
       </div>
       
         <!-- Away Team Panel -->
         <div class="team-panel">
           <div>Away</div>
-          <img id="teamBadgeAway" src="arsenal.svg" alt="Away Team Badge" width="100">
+          <img id="teamBadgeAway" src="badges/arsenal.svg" alt="Away Team Badge" width="100">
 
           <div id="starContainerAway" style="display: none;"> </div>
           <div id="divisionTextAway"></div>
 
-          <select class=team-select id="teamSelectAway">
-            <option value="Arsenal">Arsenal</option>
-            <option value="Barnsley">Barnsley</option>
-            <option value="Blackpool">Blackpool</option>
-            <option value="Bournemouth">Bournemouth</option>
-            <option value="Bristol City">Bristol City</option>
-            <option value="Carlisle">Carlisle</option>
-            <option value="Charlton Ath">Charlton Ath</option>
-            <option value="Chelsea">Chelsea</option>
-            <option value="C Palace">C Palace</option>
-            <option value="Exeter">Exeter City</option>
-            <option value="Fulham">Fulham</option>
-            <option value="Hereford">Hereford</option>
-            <option value="Hull City">Hull City</option>
-            <option value="Liverpool">Liverpool</option>
-            <option value="Leeds Utd">Leeds Utd</option>
-            <option value="Man City">Man City</option>
-            <option>Man Utd</option>
-            <option>Newcastle</option>
-            <option value="Nottm Forest">Nottm Forest</option>
-            <option value="Port Vale">Port Vale</option>
-            <option value="Portsmouth">Portsmouth</option>
-            <option value="Reading">Reading</option>
-            <option value="Rochdale">Rochdale</option>
-            <option value="Shrewsbury">Shrewsbury</option>
-            <option value="Spalding Utd">Spalding Utd</option>
-            <option value="Southend">Southend</option>
-            <option value="Tottenham" selected>Tottenham</option>
-            <option>Tow Law</option>
-            <option value="Watford">Watford</option>
-            <option value="West Brom">West Brom</option>
-            <option value="West Ham">West Ham</option>
-            <option value="Wimbledon">Wimbledon</option>
-            <option>Wolves</option>
-            <option>Wrexham</option>
-            
+          <select class="team-select" id="teamSelectAway">
+            <option value="">Loading teams…</option>
           </select>
 
-          <div class="Key-Player-Toggle">
-
-            <div class="key-player-checkbox-away">
-
-              <div class="international-stars tooltip">
-                <p>Select International Stars:</p>
-                <span class="tooltip-text">International Stars can be added to your team to improve your odds.
-                  <br>
-                  <br>
-                  Goalkeeper: +1 Goal
-                  <br>
-                  Defender: +1 Goal
-                  <br>
-                  Midfielder: +1 Goal
-                  <br>
-                  Striker: +1 Goal
-                </span>
-                </div>
-
-              <div class="away-team-stars">
-
-              <input type="checkbox" id="position1-away" name="position1-away" value="Goalkeeper">
-              <label for="position1-away"> Goalkeeper</label><br>
-              <input type="checkbox" id="position2-away" name="position2-away" value="Defender">
-              <label for="position2-away"> Defender</label><br>
-              <input type="checkbox" id="position3-away" name="position3-away" value="Midfielder">
-              <label for="position3-away"> Midfielder</label><br>
-              <input type="checkbox" id="position4-away" name="position4-away" value="Striker">
-              <label for="position4-away"> Striker</label><br>
-            
+          <div class="cup-heroes-trigger">
+            <div class="cup-heroes-title">Cup Heroes</div>
+            <div class="hero-slots" id="heroSlotsAway">
+              <div class="hero-slot" data-position="GK"><span class="hero-slot-label">GK</span></div>
+              <div class="hero-slot" data-position="DEF"><span class="hero-slot-label">DEF</span></div>
+              <div class="hero-slot" data-position="MID"><span class="hero-slot-label">MID</span></div>
+              <div class="hero-slot" data-position="STR"><span class="hero-slot-label">STR</span></div>
             </div>
-
-            </div>
+            <button class="cup-heroes-info-btn" onclick="openCupHeroesInfoModal()">How does this work?</button>
           </div>
 
         </div>
@@ -267,14 +147,14 @@
       </div>
 
       <div class="simulate-container">
-        <button class=simulate-btn id="simulateButton" disabled>PLAY MATCH</button>
+        <button class="match-info-btn" onclick="openMatchInfoModal()">ℹ Match Info</button>
+        <button class="simulate-btn" id="simulateButton" disabled>PLAY MATCH</button>
       </div>
 
     
 <footer>
-  
   <div class="banner">
-    <div class="copyright">Designed and Developed by David Holly</div>
+    <img src="images/DHD-logo.png" class="dhd-logo" alt="DHD">
   </div>
 </footer>
 
@@ -286,24 +166,43 @@
     <h2>Match Report</h2>
     <p id="reportRound"></p>
 
-      <div class="match-result">
-      <div class="home-result result">
-      <img id="reportHomeBadge" src="arsenal.svg" alt="Home Team Badge" width="100">
-      <div>
-        <p id="reportHomeName"></p>
-        </div>
+      <div class="match-result match-result--score">
+        <div class="home-result result">
+          <img id="reportHomeBadge" src="badges/arsenal.svg" alt="Home Team Badge" width="100">
+          <p id="reportHomeName"></p>
         </div>
 
-      <p id="reportScore"></p>
+        <div class="score-center">
+          <p id="reportScore"></p>
+          <p id="penaltyScoreDisplay" class="hidden"></p>
+        </div>
 
-      <div class="away-result result">
-      <img id="reportAwayBadge" src="arsenal.svg" alt="Away Team Badge" width="100">
-      <div>
-        <p id="reportAwayName"></p>
+        <div class="away-result result">
+          <img id="reportAwayBadge" src="badges/arsenal.svg" alt="Away Team Badge" width="100">
+          <p id="reportAwayName"></p>
+        </div>
       </div>
-    </div>
 
+  <div id="penaltyCirclesSection" class="penalty-circles-section hidden">
+    <div class="pen-column" id="penColHome">
+      <div class="pen-circle" id="pen-home-0"></div>
+      <div class="pen-circle" id="pen-home-1"></div>
+      <div class="pen-circle" id="pen-home-2"></div>
+      <div class="pen-circle" id="pen-home-3"></div>
+      <div class="pen-circle" id="pen-home-4"></div>
+    </div>
+    <div class="pen-column" id="penColAway">
+      <div class="pen-circle" id="pen-away-0"></div>
+      <div class="pen-circle" id="pen-away-1"></div>
+      <div class="pen-circle" id="pen-away-2"></div>
+      <div class="pen-circle" id="pen-away-3"></div>
+      <div class="pen-circle" id="pen-away-4"></div>
+    </div>
   </div>
+
+  <div id="heroNarrative" class="hero-narrative"></div>
+
+  <div id="matchEarningsSection">
 
   <p>Match Earnings</p>
 
@@ -312,9 +211,10 @@
     <div id="ticketHome">
       <p></p>
     </div>
-    
-    <div>
-      <img id="ticket-icon" src="icon-ticket.svg" alt="ticket" width="20">
+
+    <div class="tooltip">
+      <img id="ticket-icon-report" src="icons/icon-ticket.svg" alt="ticket" width="20">
+      <span class="tooltip-text">Gate revenue — 2/3 to the winner, 1/3 to the loser. Split equally on a draw.</span>
     </div>
 
     <div id="ticketAway">
@@ -327,9 +227,10 @@
     <div id="prizeHome">
       <p></p>
     </div>
-    
-    <div>
-      <img id="prize-icon" src="icon-prize.svg" alt="prize" width="20">
+
+    <div class="tooltip">
+      <img id="prize-icon" src="icons/icon-prize.svg" alt="prize" width="20">
+      <span class="tooltip-text">Round bonus — awarded to both teams for reaching the Quarter Final or above.</span>
     </div>
 
     <div id="prizeAway">
@@ -339,25 +240,10 @@
 
   <div class="match-result">
 
-    <div id="tvHome">
-      <p></p>
-    </div>
-    
-    <div>
-      <img id="tv-icon" src="icon-tv.svg" alt="tv" width="20">
-    </div>
-
-    <div id="tvAway">
-      <p></p>
-    </div>
-  </div>
-
-  <div class="match-result">
-
     <div id="totalHome">
       <b><p></p></b>
     </div>
-    
+
     <div>
       <b>Total</b>
     </div>
@@ -367,19 +253,15 @@
     </div>
   </div>
 
+  </div>
 
+    <h3><span id="reportResult"></span></h3>
+    <button id="startPenButton" class="report-button hidden">START PENALTY SHOOT OUT</button>
 
-    <h3>
-      
-      <div>
-
-      <span id="reportResult"></span>
-    
-    </h3>
-    
-    <button class="report-button" id="closeReport" onclick="closeModal()">NEW MATCH</button>
-
-    <button class="report-button" id="replayButton" class="hidden">REPLAY MATCH</button>
+    <div class="modal-buttons">
+      <button class="report-button" id="closeReport">NEW MATCH</button>
+      <button class="report-button" id="replayButton">REPLAY MATCH</button>
+    </div>
 
   </div>
 
@@ -391,6 +273,141 @@
 
       
 
+
+<div id="matchInfoModal" class="modal hidden">
+  <div class="modal-content match-info-modal-content">
+    <h2>Match Info</h2>
+    <div class="match-info-row"><span>Round</span><span id="matchInfoRound"></span></div>
+    <div class="match-info-row"><span>Kick-off</span><span id="matchInfoKickoff"></span></div>
+    <div class="match-info-row"><span>Stadium</span><span id="matchInfoStadium"></span></div>
+    <div class="match-info-row"><span>Gate / Prize</span><span id="matchInfoPrize"></span></div>
+    <div class="match-info-row"><span>If Draw</span><span id="matchInfoDraw"></span></div>
+    <button class="match-info-close" onclick="document.getElementById('matchInfoModal').classList.add('hidden')">Close</button>
+  </div>
+</div>
+
+<div id="cupHeroesInfoModal" class="modal hidden">
+  <div class="modal-content cup-heroes-info-modal-content">
+
+    <!-- Panel 1: Overview -->
+    <div class="demo-panel active" data-panel="1">
+      <h2>Cup Heroes</h2>
+      <p class="cup-heroes-info-subtitle">How this works vs. the board game</p>
+      <div class="cup-heroes-info-body">
+        <p>In the <strong>Wembley Companion</strong>, Cup Heroes replace International Stars listed on the board game. Just like International Stars, physical Cup Heroes tokens are purchased before a match. If they are selected and finish on the winning team they are kept by the winning manager. If they lose they are returned for any player to purchase.</p>
+        <p>New mechanics have been added to make this a more immersive and realistic gaming experience, reflecting the real-world FA Cup heroics of legends who made Wembley their stage.</p>
+      </div>
+    </div>
+
+    <!-- Panel 2: Picking heroes -->
+    <div class="demo-panel" data-panel="2">
+      <h2>Picking Your Heroes</h2>
+      <div class="demo-hero-slots">
+        <div class="demo-hero-slot"><div class="demo-hero-image" style="background:#B8413B"><span>GK</span></div><div class="demo-slot-label">Goalkeeper</div></div>
+        <div class="demo-hero-slot"><div class="demo-hero-image" style="background:#AAA54A"><span>DEF</span></div><div class="demo-slot-label">Defender</div></div>
+        <div class="demo-hero-slot"><div class="demo-hero-image" style="background:#31813C"><span>MID</span></div><div class="demo-slot-label">Midfielder</div></div>
+        <div class="demo-hero-slot"><div class="demo-hero-image" style="background:#BBBCB9"><span>STR</span></div><div class="demo-slot-label">Striker</div></div>
+      </div>
+      <ul class="demo-rules-list">
+        <li>Cup Heroes are inspired by real-world legends who left their FA Cup legacy at Wembley</li>
+        <li>Select up to <strong>3 heroes</strong> per team — <strong>one per position</strong></li>
+        <li>Each hero has a unique bonus that fires automatically during the match simulation</li>
+        <li>The <strong>price</strong> on each card is the in-game purchase cost — pay it from your cash reserve before the match</li>
+      </ul>
+    </div>
+
+    <!-- Panel 3: GK & DEF -->
+    <div class="demo-panel" data-panel="3">
+      <h2>GK &amp; DEF</h2>
+      <div class="demo-cards-row">
+        <div class="demo-card">
+          <div class="demo-card-image" style="background:#B8413B"><span>GK</span></div>
+          <div class="demo-card-body">
+            <div class="demo-card-name">Goalkeeper</div>
+            <div class="demo-card-primary">80% chance to reduce the opposition's score by 1</div>
+            <div class="demo-card-secondary">⚡ Some heroes boost to 90% at Wembley</div>
+          </div>
+        </div>
+        <div class="demo-card">
+          <div class="demo-card-image" style="background:#AAA54A"><span>DEF</span></div>
+          <div class="demo-card-body">
+            <div class="demo-card-name">Defender</div>
+            <div class="demo-card-primary">80% chance to reduce the opposition's score by 1</div>
+            <div class="demo-card-secondary">⚡ Some heroes trigger bonuses in specific match conditions</div>
+          </div>
+        </div>
+      </div>
+      <p class="demo-panel-note">Defensive heroes add jeopardy to the opposition — the more you field, the harder it is to score against you.</p>
+    </div>
+
+    <!-- Panel 4: MID & STR -->
+    <div class="demo-panel" data-panel="4">
+      <h2>MID &amp; STR</h2>
+      <div class="demo-cards-row">
+        <div class="demo-card">
+          <div class="demo-card-image" style="background:#31813C"><span>MID</span></div>
+          <div class="demo-card-body">
+            <div class="demo-card-name">Midfielder</div>
+            <div class="demo-card-primary">80% chance to add a goal for your team</div>
+            <div class="demo-card-secondary">⚡ Secondary bonuses can fire in cup-specific scenarios</div>
+          </div>
+        </div>
+        <div class="demo-card">
+          <div class="demo-card-image" style="background:#BBBCB9"><span>STR</span></div>
+          <div class="demo-card-body">
+            <div class="demo-card-name">Striker</div>
+            <div class="demo-card-primary">80% chance to add a goal for your team</div>
+            <div class="demo-card-secondary">⚡ e.g. Haaland: 50% chance to score again vs. lower division teams</div>
+          </div>
+        </div>
+      </div>
+      <p class="demo-panel-note">Attacking heroes can break deadlocks and turn the game — but they cost more. Choose wisely.</p>
+    </div>
+
+    <!-- Dots -->
+    <div class="demo-dots" id="demoDots">
+      <span class="demo-dot active"></span>
+      <span class="demo-dot"></span>
+      <span class="demo-dot"></span>
+      <span class="demo-dot"></span>
+    </div>
+
+    <button class="match-info-close" id="demoNextBtn" onclick="advanceDemoPanel()">Next</button>
+
+  </div>
+</div>
+
+<div id="cupHeroesModal" class="modal hidden">
+  <div class="modal-content cup-heroes-modal-content">
+    <div class="cup-heroes-sticky-header">
+      <div class="cup-heroes-banner">
+        <img class="cup-heroes-badge-img" id="cupHeroesBadgeImg" src="badges/arsenal.svg" alt="Team Badge">
+        <div class="cup-heroes-banner-meta">
+          <h2>Cup Heroes</h2>
+          <span id="cupHeroesCount">0 / 3 selected</span>
+        </div>
+        <button id="cupHeroesClose">Save &amp; Close</button>
+      </div>
+      <div class="cup-heroes-filter-bar">
+        <button class="filter-btn active" data-filter="All">All</button>
+        <button class="filter-btn" data-filter="GK">GK</button>
+        <button class="filter-btn" data-filter="DEF">DEF</button>
+        <button class="filter-btn" data-filter="MID">MID</button>
+        <button class="filter-btn" data-filter="STR">STR</button>
+      </div>
+    </div>
+    <div class="cup-heroes-grid" id="cupHeroesGrid"></div>
+  </div>
+</div>
+
+
+<div id="skinProductionModal" class="modal hidden">
+  <div class="modal-content skin-production-modal-content">
+    <h2>Coming Soon</h2>
+    <p>This skin is currently in production.<br>Check back soon!</p>
+    <button class="match-info-close" onclick="document.getElementById('skinProductionModal').classList.add('hidden')">Got It</button>
+  </div>
+</div>
 
 </body>
 </html>

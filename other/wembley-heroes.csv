@@ -1,0 +1,9 @@
+id,position,name,price,primary_chance,secondary_chance,primary_description,secondary_description
+cech,GK,Cech,5000,80,90,80% chance to reduce opposition score by 1,Increases to 90% chance at Wembley
+schmeichel,GK,Schmeichel,5000,80,80,80% chance to reduce opposition score by 1,Coming soon
+cole,DEF,Cole,10000,80,90,80% chance to reduce opposition score by 1,Increases to 90% chance at Wembley
+virgil,DEF,Virgil,10000,80,80,80% chance to reduce opposition score by 1,Coming soon
+gerrard,MID,Gerrard,20000,80,80,80% chance to increase score by 1,Coming soon
+ronaldo,MID,Ronaldo,20000,80,80,80% chance to increase score by 1,Coming soon
+drogba,STR,Drogba,40000,80,90,80% chance to increase score by 1,Increases to 90% chance at Wembley
+haaland,STR,Haaland,40000,80,50,80% chance to increase score by 1,If facing a lower division team: 50% chance to score again
