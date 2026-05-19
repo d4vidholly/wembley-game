@@ -12,4 +12,4 @@ Wembley Simulator is a companion for the classic Wembley Board Game. It's perfec
 
 ## Live Demo
 
-https://d4vidholly.github.io/Wembley/
+https://d4vidholly.github.io/wembley-game/
