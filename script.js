@@ -293,9 +293,19 @@ function enableSimulateButton() {
   document.getElementById('simulateButton').disabled = !(homeSelected && awaySelected && roundSelected);
 }
 
+function toggleEarnings() {
+  const section = document.getElementById('matchEarningsSection');
+  const btn = document.getElementById('earningsToggleBtn');
+  const showing = section.style.display === 'block';
+  section.style.display = showing ? 'none' : 'block';
+  btn.textContent = showing ? 'Earnings ▼' : 'Earnings ▲';
+}
+
 function closeModal() {
   document.getElementById('matchReportModal').classList.add('hidden');
   document.getElementById('matchSetupContainer').classList.remove('blurred');
+  document.getElementById('matchEarningsSection').style.display = '';
+  document.getElementById('earningsToggleBtn').textContent = 'Earnings ▼';
   selectedHeroesHome = [];
   selectedHeroesAway = [];
   updateHeroSummary('home');
