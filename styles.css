@@ -43,12 +43,15 @@ label {
 header {
   position: relative;
   height: 80px;
-background-color: #1A6437;
+  background-color: #1A6437;
   padding: 20px;
   color: var(--text-colour);
   text-align: center;
   font-size: 24px;
   font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .skin-nav {
@@ -183,6 +186,7 @@ background-color: #1A6437;
   height: 100px;
   margin-top: 10px;
   margin-bottom: 10px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.45), 0 1px 4px rgba(0,0,0,0.3);
 }
 
 .team-panel select {
@@ -239,15 +243,21 @@ background-color: #1A6437;
   flex-direction: column;
   align-items: stretch;
   gap: 20px;
+  width: 220px;
+  flex-shrink: 0;
 }
 
 .round-select {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px;
+  padding: 8px;
   font-weight: bold;
-  margin: 0;
+  margin: 0 auto;
+  max-width: 260px;
+  width: 100%;
+  border: 2px solid var(--border);
+  border-radius: 4px;
 }
 
 .round-select select {
@@ -462,6 +472,10 @@ footer {
   justify-content: center;
 }
 
+#reportHomeBadge, #reportAwayBadge {
+  box-shadow: 0 4px 14px rgba(0,0,0,0.45), 0 1px 4px rgba(0,0,0,0.3);
+}
+
 .result p {
   font-weight: bold;
   margin-top: 30px;
@@ -483,6 +497,11 @@ footer {
   gap: 12px;
   margin-top: 20px;
   flex-wrap: wrap;
+  width: 100%;
+}
+
+.modal-buttons .report-button {
+  min-width: 130px;
 }
 
 .report-button {
@@ -1331,8 +1350,8 @@ body[data-theme="classic"] {
     -50deg,
     #1a6437 0px,
     #1a6437 135px,
-    #1f7540 135px,
-    #1f7540 270px
+    #1c6b3b 135px,
+    #1c6b3b 270px
   );
   background-color: #1a6437;
 }
@@ -1345,16 +1364,22 @@ body[data-theme="classic"] {
 
 /* ═══════════════════════════════════════════════════════════
    CLASSIC DARK SKIN
-   Same stripe pattern, deep night-green base, gold highlights
+   Dark version of Classic — same palette shifted to night values.
+   ── Palette ──────────────────────────────────────────────
+   Background  #061912   near-black stage
+   Card        #0B2E1C   dark forest green (gradient dark end)
+   Soft        #1A5234   medium-dark green (gradient light end)
+   Strong      #AAA54A   gold — borders, accent, selection
+   White       #ffffff   text
 ═══════════════════════════════════════════════════════════ */
 [data-theme="classic-dark"] {
-  --main-dark:     #061912;
-  --main-light:    #0F2D1D;
+  --main-dark:     #0B2E1C;
+  --main-light:    #1A5234;
   --text-colour:   #FFFFFF;
   --border:        #AAA54A;
   --accent:        #AAA54A;
   --accent-subtle: rgba(170, 165, 74, 0.2);
-  --accent-glow:   rgba(170, 165, 74, 0.6);
+  --accent-glow:   rgba(170, 165, 74, 0.5);
   --accent-gold:   #AAA54A;
   --overlay-bg:    rgba(3, 10, 6, 0.82);
 }
@@ -1364,8 +1389,8 @@ body[data-theme="classic-dark"] {
     -50deg,
     #061912 0px,
     #061912 135px,
-    #0A2218 135px,
-    #0A2218 270px
+    #081614 135px,
+    #081614 270px
   );
   background-color: #061912;
 }
@@ -1377,6 +1402,95 @@ body[data-theme="classic-dark"] {
 [data-theme="classic-dark"] .team-select,
 [data-theme="classic-dark"] .round-dropdown {
   background-color: #061912;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SKY SKIN
+   Activated by: data-theme="sky" on <body>
+   ── Palette ──────────────────────────────────────────────
+   Background  #000322   deep navy stage
+   Mid         #193686   royal blue — card gradient light end
+   Contrast    #BF0807   red — borders, simulate button, accents
+   White       #ffffff   text
+═══════════════════════════════════════════════════════════ */
+[data-theme="sky"] {
+  --main-dark:     #000322;
+  --main-light:    #193686;
+  --text-colour:   #ffffff;
+  --border:        #bf0807;
+  --accent:        #bf0807;
+  --accent-subtle: rgba(191, 8, 7, 0.15);
+  --accent-glow:   rgba(191, 8, 7, 0.45);
+  --accent-gold:   #ffffff;
+  --overlay-bg:    rgba(0, 3, 34, 0.78);
+}
+
+body[data-theme="sky"] {
+  background-image:
+    radial-gradient(ellipse 140% 45% at 50% 0%, rgba(25, 54, 134, 0.28) 0%, transparent 65%),
+    repeating-linear-gradient(
+      -50deg,
+      #000322 0px,
+      #000322 135px,
+      #000928 135px,
+      #000928 270px
+    );
+  background-color: #000322;
+}
+
+[data-theme="sky"] header {
+  background: linear-gradient(180deg, #1e4aaa 0%, #193686 55%, #0e245c 100%);
+  box-shadow: 0 3px 0 #bf0807, 0 5px 16px rgba(0, 3, 34, 0.7);
+}
+
+[data-theme="sky"] .team-panel {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0) 45%),
+    linear-gradient(155deg, #1e3d99 0%, #040e40 70%);
+  box-shadow: 0 4px 24px rgba(0, 3, 34, 0.7), inset 0 1px 0 rgba(255,255,255,0.12);
+}
+
+[data-theme="sky"] .modal-content {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 35%),
+    linear-gradient(155deg, #1e3d99 0%, #040e40 70%);
+  box-shadow: 0 8px 48px rgba(0, 3, 34, 0.9);
+}
+
+[data-theme="sky"] .match-info-modal-content {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 35%),
+    linear-gradient(155deg, #1e3d99 0%, #040e40 70%);
+  box-shadow: 0 8px 48px rgba(0, 3, 34, 0.9);
+}
+
+[data-theme="sky"] .simulate-btn {
+  background: linear-gradient(180deg, #e8201f 0%, #bf0807 55%, #880000 100%);
+  border: none;
+  box-shadow: 0 3px 16px rgba(191, 8, 7, 0.55), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+[data-theme="sky"] .simulate-btn:hover {
+  background: linear-gradient(180deg, #ff3332 0%, #d40a09 55%, #9e0000 100%);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 5px 20px rgba(191, 8, 7, 0.75), inset 0 1px 0 rgba(255,255,255,0.25);
+}
+
+[data-theme="sky"] .report-button {
+  background: linear-gradient(180deg, #1a3d9e 0%, #0d2060 100%);
+  border-color: #bf0807;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+[data-theme="sky"] .report-button:hover {
+  background: linear-gradient(180deg, #2450b8 0%, #193686 100%);
+  color: #ffffff;
+}
+
+[data-theme="sky"] .team-select,
+[data-theme="sky"] .round-dropdown {
+  background-color: #000322;
 }
 
 /* ═══════════════════════════════════════════════════════════

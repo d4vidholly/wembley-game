@@ -303,6 +303,7 @@ function toggleEarnings() {
 
 function closeModal() {
   document.getElementById('matchReportModal').classList.add('hidden');
+  document.getElementById('replayButton').classList.add('hidden');
   document.getElementById('matchEarningsSection').style.display = '';
   document.getElementById('earningsToggleBtn').textContent = 'Earnings ▼';
   selectedHeroesHome = [];
@@ -796,7 +797,7 @@ function advanceDemoPanel() {
 
 function setSkin(skin) {
   document.body.dataset.theme = skin;
-  const labels = { classic: 'Classic', 'classic-dark': 'Classic Dark' };
+  const labels = { classic: 'Classic', 'classic-dark': 'Classic Dark', sky: 'Sky' };
   document.getElementById('skinToggle').textContent = (labels[skin] || skin) + ' ▾';
   document.querySelectorAll('.skin-option[data-skin]').forEach(btn => {
     btn.style.display = btn.dataset.skin === skin ? 'none' : '';
