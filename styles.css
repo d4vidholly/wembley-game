@@ -845,6 +845,28 @@ footer {
   text-decoration: underline;
 }
 
+.cup-heroes-info-icon {
+  display: none;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  width: 17px;
+  height: 17px;
+  font-size: 11px;
+  font-style: italic;
+  font-family: Georgia, serif;
+  font-weight: bold;
+  color: var(--text-colour);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.65;
+  vertical-align: middle;
+  margin-left: 5px;
+}
+
 /* ═══════════════════════════════════════════════════════════
    CUP HEROES — INFO MODAL
 ═══════════════════════════════════════════════════════════ */
@@ -1100,6 +1122,10 @@ footer {
 
 #cupHeroesClose:hover {
   background: var(--main-light);
+}
+
+.cup-heroes-sticky-footer {
+  display: none;
 }
 
 .cup-heroes-filter-bar {
@@ -1575,32 +1601,9 @@ body[data-theme="sky"] {
     height: 70px;
   }
 
-  /* ── Match details — stats between team panels ───── */
+  /* ── Match details — hidden on mobile, shown via modal ── */
   .match-details {
-    display: flex !important;
-    flex-direction: column;
-    width: 100%;
-    gap: 10px;
-    padding: 4px 0;
-  }
-
-  .match-details-stadium {
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
-    padding: 0;
-    text-align: left;
-  }
-
-  .info-icon-box {
-    width: 36px;
-    min-width: 36px;
-    height: 36px;
-    flex-shrink: 0;
-  }
-
-  .info-icon-text {
-    font-size: 11px;
+    display: none !important;
   }
 
   /* ── Simulate row ────────────────────────────────── */
@@ -1610,17 +1613,30 @@ body[data-theme="sky"] {
   }
 
   .match-info-btn {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     width: 100%;
     margin-bottom: 10px;
     background: transparent;
     color: var(--text-colour);
     border: 1px solid var(--border);
     border-radius: 5px;
-    padding: 8px;
+    padding: 10px 8px;
     font-size: 13px;
+    font-family: inherit;
+    font-weight: bold;
     cursor: pointer;
     opacity: 0.75;
+    letter-spacing: 0.3px;
+  }
+
+  .match-info-icons {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0.85;
   }
 
   /* ── Match Info modal — centred, auto height ─────── */
@@ -1697,6 +1713,47 @@ body[data-theme="sky"] {
 
   .cup-heroes-grid {
     grid-template-columns: repeat(2, 1fr);
+    padding-bottom: 16px;
+  }
+
+  /* "How does this work?" text → compact icon in title */
+  .cup-heroes-info-btn {
+    display: none;
+  }
+
+  .cup-heroes-info-icon {
+    display: inline-flex;
+  }
+
+  /* Save & Close moves to sticky footer */
+  #cupHeroesClose {
+    display: none;
+  }
+
+  .cup-heroes-sticky-footer {
+    display: block;
+    position: sticky;
+    bottom: 0;
+    padding: 12px 0 20px;
+    background: linear-gradient(0deg, var(--main-dark) 65%, transparent 100%);
+  }
+
+  #cupHeroesConfirm {
+    width: 100%;
+    background: var(--main-dark);
+    color: var(--text-colour);
+    border: 2px solid var(--border);
+    border-radius: 2px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: bold;
+    font-family: inherit;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+  }
+
+  #cupHeroesConfirm:hover {
+    background: var(--main-light);
   }
 
   /* ── Other modals ────────────────────────────────── */

@@ -966,11 +966,14 @@ window.addEventListener('load', function () {
     });
   });
 
-  document.getElementById('cupHeroesClose').addEventListener('click', () => {
+  function closeCupHeroesModal() {
     updateHeroSummary('home');
     updateHeroSummary('away');
     document.getElementById('cupHeroesModal').classList.add('hidden');
-  });
+  }
+
+  document.getElementById('cupHeroesClose').addEventListener('click', closeCupHeroesModal);
+  document.getElementById('cupHeroesConfirm').addEventListener('click', closeCupHeroesModal);
 
   document.querySelectorAll('#heroSlotsHome .hero-slot, #heroSlotsAway .hero-slot').forEach(slot => {
     slot.addEventListener('click', () => {
