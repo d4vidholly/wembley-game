@@ -303,7 +303,6 @@ function toggleEarnings() {
 
 function closeModal() {
   document.getElementById('matchReportModal').classList.add('hidden');
-  document.getElementById('matchSetupContainer').classList.remove('blurred');
   document.getElementById('matchEarningsSection').style.display = '';
   document.getElementById('earningsToggleBtn').textContent = 'Earnings ▼';
   selectedHeroesHome = [];
@@ -520,7 +519,6 @@ function simulateMatch(homeName, awayName, round, replay = false) {
   // — Show modal —
   document.getElementById('reportResult').innerText = resultText;
   document.getElementById('matchReportModal').classList.remove('hidden');
-  document.getElementById('matchSetupContainer').classList.add('blurred');
 
   // — Confetti on Final win —
   if (round === 'Final') {
@@ -646,7 +644,6 @@ function startPenaltyShootout(homeName, awayName, winner, round) {
   };
 
   document.getElementById('matchReportModal').classList.remove('hidden');
-  document.getElementById('matchSetupContainer').classList.add('blurred');
 }
 
 function animateKicks(sequence, index, homeScore, awayScore, winner, round, homeName, awayName) {
@@ -748,7 +745,10 @@ function renderHeroReport(heroResult) {
       const state = ev.secondaryFired ? '--bonus' : ev.primaryFired ? '--active' : '--blank';
       const initials = ev.name.slice(0, 2).toUpperCase();
       return `<div class="hero-report-slot hero-report-slot${state}">
-        <div class="hero-report-image" style="background:${color}"><span>${initials}</span></div>
+        <div class="hero-report-image" style="background:${color}; border-color:${color}">
+          <img src="${HEROES_PATH}${ev.id}.png" class="hero-report-photo" alt="${ev.name}" onerror="this.src='${HEROES_PATH}${ev.id}.jpg';this.onerror=function(){this.style.display='none';this.nextElementSibling.style.display=''}">
+          <span style="display:none">${initials}</span>
+        </div>
         <span class="hero-report-pos">${ev.position}</span>
         <div class="hero-report-tooltip">${ev.tooltip}</div>
       </div>`;
@@ -834,25 +834,25 @@ function renderHeroCards(side, filter) {
     const isUnavailable = hero.available === false;
     const takenByOther  = !isSelected && otherSelected.includes(hero.id);
     const posConflict   = selected.some(id => heroes[id]?.position === hero.position && id !== hero.id);
-    const atMax         = selected.length >= 3 && !isSelected;
-    const isDisabled    = !isUnavailable && !isSelected && (posConflict || atMax || takenByOther);
+    const atMax         = selected.length >= 3 && !isSelected && !posConflict;
+    const isDisabled    = !isUnavailable && !isSelected && (atMax || takenByOther);
     const initials      = hero.name.slice(0, 2).toUpperCase();
     const bgColor       = positionColors[hero.position] || '#333';
     const stateClass    = isUnavailable ? ' hero-card--locked' : (isSelected ? ' hero-card--selected' : (isDisabled ? ' hero-card--disabled' : ''));
 
-    return `<div class="hero-card${stateClass}" style="--card-border-color: ${bgColor}" onclick="toggleHero('${side}', '${hero.id}')">
-      <div class="hero-card-image" style="background:${bgColor}">
-        <img src="${HEROES_PATH}${hero.id}.png" class="hero-card-photo" alt="" onerror="this.style.display='none'">
+    return `<div class="hero-card${stateClass}" style="--pos-color: ${bgColor}" onclick="toggleHero('${side}', '${hero.id}')">
+      <div class="hero-card-image" style="background: ${bgColor}">
+        <img src="${HEROES_PATH}${hero.id}.png" class="hero-card-photo" alt="" onerror="this.src='${HEROES_PATH}${hero.id}.jpg';this.onerror=function(){this.style.display='none';this.nextElementSibling.style.display='block'}">
         <span class="hero-card-initials">${initials}</span>
         ${isSelected ? '<div class="hero-card-check">✓</div>' : ''}
       </div>
-      <div class="hero-card-info">
-        <div class="hero-card-name">${hero.name}</div>
-        <span class="hero-card-position-badge">${hero.position}</span>
-        <div class="hero-card-price">$${hero.price.toLocaleString()}</div>
-        <div class="hero-card-primary">${hero.primary_description}</div>
-        <div class="hero-card-secondary">⚡ ${hero.secondary_description}</div>
+      <div class="hero-card-name">${hero.name}</div>
+      <div class="hero-card-meta">
+        <span class="hero-card-meta-pos">${hero.position}</span>
+        <span class="hero-card-meta-price">£${hero.price.toLocaleString()}</span>
       </div>
+      <div class="hero-card-bonus">${hero.primary_description}</div>
+      <div class="hero-card-bonus hero-card-bonus--sec">⚡ ${hero.secondary_description}</div>
     </div>`;
   }).join('');
 }
@@ -868,10 +868,15 @@ function toggleHero(side, heroId) {
   if (idx !== -1) {
     selected.splice(idx, 1);
   } else {
-    if (selected.length >= 3) return;
     if (otherSelected.includes(heroId)) return; // can't pick the same hero for both teams
-    if (selected.some(id => heroes[id]?.position === hero.position)) return;
-    selected.push(heroId);
+    const conflictIdx = selected.findIndex(id => heroes[id]?.position === hero.position);
+    if (conflictIdx !== -1) {
+      selected.splice(conflictIdx, 1, heroId); // swap out the existing hero in this position
+    } else if (selected.length >= 3) {
+      return; // all 3 slots filled with different positions — no room
+    } else {
+      selected.push(heroId);
+    }
   }
 
   const currentFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'All';
@@ -901,9 +906,11 @@ function updateHeroSummary(side) {
     if (heroId) {
       const hero = heroes[heroId];
       slot.style.background = positionColors[pos];
-      slot.innerHTML = `<span class="hero-slot-initials">${hero.name.slice(0, 2).toUpperCase()}</span>`;
+      slot.style.boxShadow = 'inset 0 0 0 4px ' + positionColors[pos];
+      slot.innerHTML = `<img src="${HEROES_PATH}${hero.id}.png" class="hero-slot-photo" alt="${hero.name}" onerror="this.src='${HEROES_PATH}${hero.id}.jpg';this.onerror=function(){this.style.display='none';this.nextElementSibling.style.display='block'}"><span class="hero-slot-initials" style="display:none">${hero.name.slice(0, 2).toUpperCase()}</span>`;
     } else {
       slot.style.background = '';
+      slot.style.boxShadow = '';
       slot.innerHTML = `<span class="hero-slot-label">${pos}</span>`;
     }
   });

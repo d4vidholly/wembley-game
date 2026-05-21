@@ -138,7 +138,6 @@ background-color: #1A6437;
 }
 
 .match-area {
-  backdrop-filter: blur(12px);
   padding: 40px;
   display: flex;
   justify-content: space-around;
@@ -178,7 +177,7 @@ background-color: #1A6437;
   min-height: 300px;
 }
 
-.team-panel img {
+.team-panel img:not(.hero-slot-photo) {
   border-radius: 50%;
   width: 100px;
   height: 100px;
@@ -214,6 +213,8 @@ background-color: #1A6437;
   font-weight: bold;
   font-size: 18px;
   text-align: center;
+  text-align-last: center;
+  -webkit-text-align-last: center;
   overflow-y: auto;
   max-height: 100px;
   max-width: 100%;
@@ -263,6 +264,8 @@ background-color: #1A6437;
   font-weight: bold;
   font-size: 14px;
   text-align: center;
+  text-align-last: center;
+  -webkit-text-align-last: center;
   text-transform: uppercase;
   width: 100%;
 }
@@ -568,6 +571,7 @@ footer {
 
 /* Square icon — matches .hero-slot style from the team panel */
 .hero-report-image {
+  position: relative;
   width: 44px;
   height: 44px;
   border-radius: 3px;
@@ -579,7 +583,17 @@ footer {
   font-size: 12px;
   color: #fff;
   letter-spacing: 0.5px;
+  overflow: hidden;
   transition: box-shadow 0.2s;
+}
+
+.hero-report-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 /* Empty placeholder — no hero selected */
@@ -739,15 +753,17 @@ footer {
 }
 
 .hero-slot {
+  position: relative;
   aspect-ratio: 1;
   border-radius: 3px;
-  border: 2px solid var(--border);
-  background: rgba(128, 128, 128, 0.18);
+  border: none;
+  background: rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.2s;
+  overflow: hidden;
+  transition: background 0.2s, box-shadow 0.2s;
 }
 
 .hero-slot:hover {
@@ -757,7 +773,7 @@ footer {
 .hero-slot-label {
   font-size: 10px;
   font-weight: bold;
-  opacity: 0.3;
+  opacity: 0.2;
   letter-spacing: 0.5px;
 }
 
@@ -765,6 +781,15 @@ footer {
   font-size: 13px;
   font-weight: bold;
   color: rgba(255, 255, 255, 0.85);
+}
+
+.hero-slot-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 .cup-heroes-btn {
@@ -1097,21 +1122,24 @@ footer {
 }
 
 .hero-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid var(--card-border-color, var(--border));
-  border-radius: 4px;
-  overflow: hidden;
+  position: relative;
   cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+  background: var(--main-dark);
+  border: 10px solid var(--pos-color, var(--border));
+  border-radius: 0;
+  transition: filter 0.15s, transform 0.1s;
 }
 
 .hero-card:hover:not(.hero-card--disabled):not(.hero-card--locked) {
-  border-color: var(--accent);
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.25));
+  transform: translateY(-2px);
 }
 
 .hero-card--selected {
-  border: 3px solid var(--accent);
-  box-shadow: 0 0 8px var(--accent-glow);
+  border: 10px solid var(--accent);
+  filter: drop-shadow(0 0 18px var(--accent-glow));
 }
 
 .hero-card--disabled {
@@ -1125,6 +1153,7 @@ footer {
   filter: grayscale(80%);
 }
 
+/* Photo area */
 .hero-card-image {
   position: relative;
   width: 100%;
@@ -1132,6 +1161,7 @@ footer {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .hero-card-photo {
@@ -1146,6 +1176,7 @@ footer {
   font-size: 1.8rem;
   font-weight: bold;
   color: rgba(255, 255, 255, 0.75);
+  display: none;
 }
 
 .hero-card-check {
@@ -1154,7 +1185,7 @@ footer {
   right: 6px;
   background: var(--accent);
   color: white;
-  border-radius: 50%;
+  border-radius: 2px;
   width: 22px;
   height: 22px;
   display: flex;
@@ -1162,43 +1193,60 @@ footer {
   justify-content: center;
   font-size: 13px;
   font-weight: bold;
+  z-index: 2;
+  box-shadow: 0 0 10px 3px var(--accent-glow);
 }
 
-.hero-card-info {
-  padding: 8px;
-}
-
+/* Name banner */
 .hero-card-name {
-  font-size: 14px;
-  font-weight: bold;
-  margin-bottom: 4px;
-}
-
-.hero-card-position-badge {
-  display: inline-block;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 2px;
-  padding: 2px 6px;
-  font-size: 11px;
-  margin-bottom: 6px;
-}
-
-.hero-card-price {
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
   font-size: 12px;
-  color: var(--accent-gold);
-  margin-bottom: 6px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 5px 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.hero-card-primary {
-  font-size: 11px;
-  line-height: 1.4;
-  margin-bottom: 4px;
+/* Position + price row */
+.hero-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.hero-card-secondary {
+.hero-card-meta-pos {
   font-size: 10px;
-  opacity: 0.65;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+.hero-card-meta-price {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
+/* Bonus description bars */
+.hero-card-bonus {
+  font-size: 10px;
   line-height: 1.4;
+  padding: 5px 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.hero-card-bonus--sec {
+  opacity: 0.65;
+  font-size: 9.5px;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1413,17 +1461,32 @@ body[data-theme="classic-dark"] {
     height: 70px;
   }
 
-  /* ── Round select — hoisted above team panels ────── */
+  /* ── Match details — stats between team panels ───── */
   .match-details {
     display: flex !important;
     flex-direction: column;
-    order: -1;
     width: 100%;
-    gap: 0;
+    gap: 10px;
+    padding: 4px 0;
   }
 
-  .match-details .match-details-stadium {
-    display: none;
+  .match-details-stadium {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+    text-align: left;
+  }
+
+  .info-icon-box {
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+
+  .info-icon-text {
+    font-size: 11px;
   }
 
   /* ── Simulate row ────────────────────────────────── */
