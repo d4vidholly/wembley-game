@@ -320,6 +320,11 @@ function toggleEarnings() {
   btn.textContent = showing ? 'Earnings ▼' : 'Earnings ▲';
 }
 
+function dismissWelcome() {
+  sessionStorage.setItem('wembley-welcomed', '1');
+  document.getElementById('welcomeModal').classList.add('hidden');
+}
+
 function closeModal() {
   document.getElementById('matchReportModal').classList.add('hidden');
   document.getElementById('replayButton').classList.add('hidden');
@@ -1016,7 +1021,10 @@ window.addEventListener('load', function () {
   document.querySelectorAll('.skin-option[data-skin]').forEach(btn => {
     btn.addEventListener('click', () => {
       const skin = btn.dataset.skin;
-      if (skin === 'retro' || skin === 'dark') {
+      if (skin === 'supporter') {
+        document.getElementById('skinDropdown').classList.add('hidden');
+        document.getElementById('supporterModal').classList.remove('hidden');
+      } else if (skin === 'retro') {
         document.getElementById('skinDropdown').classList.add('hidden');
         document.getElementById('skinProductionModal').classList.remove('hidden');
       } else {
@@ -1026,6 +1034,10 @@ window.addEventListener('load', function () {
   });
   document.addEventListener('click', () => skinDropdown.classList.add('hidden'));
   setSkin('classic');
+
+  if (!sessionStorage.getItem('wembley-welcomed')) {
+    document.getElementById('welcomeModal').classList.remove('hidden');
+  }
 
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {

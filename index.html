@@ -32,6 +32,7 @@
       <button class="skin-option" data-skin="classic">Classic</button>
       <button class="skin-option" data-skin="sky">Sky</button>
       <button class="skin-option skin-option--locked" data-skin="retro">Retro <span class="skin-soon-tag">soon</span></button>
+      <button class="skin-option skin-option--locked skin-option--supporter" data-skin="supporter">Supporter ☕</button>
     </div>
   </div>
   </header>
@@ -414,6 +415,29 @@
     <h2>Coming Soon</h2>
     <p>This skin is currently in production.<br>Check back soon!</p>
     <button class="match-info-close" onclick="document.getElementById('skinProductionModal').classList.add('hidden')">Got It</button>
+  </div>
+</div>
+
+<div id="supporterModal" class="modal hidden">
+  <div class="modal-content skin-production-modal-content">
+    <div class="supporter-modal-icon">☕</div>
+    <h2>Supporter Skin</h2>
+    <p>Unlock an exclusive skin by supporting Wembley on Ko-fi. Every coffee keeps the game going!</p>
+    <button class="supporter-kofi-btn" id="kofiBtn">Support on Ko-fi</button>
+    <button class="match-info-close" onclick="document.getElementById('supporterModal').classList.add('hidden')">Maybe Later</button>
+  </div>
+</div>
+
+<div id="welcomeModal" class="modal hidden">
+  <div class="modal-content welcome-modal-content">
+    <img src="images/wembley_logo_white.png" class="welcome-logo" alt="Wembley">
+    <p class="welcome-tagline">Digital companion for the classic FA Cup board game</p>
+    <ul class="welcome-features">
+      <li>Pick your teams and round</li>
+      <li>Select Cup Heroes to boost your squad</li>
+      <li>Simulate the match and track your earnings</li>
+    </ul>
+    <button class="simulate-btn welcome-cta" onclick="dismissWelcome()">Let's Play</button>
   </div>
 </div>
 

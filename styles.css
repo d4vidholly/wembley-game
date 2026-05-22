@@ -1520,6 +1520,119 @@ body[data-theme="sky"] {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   WELCOME MODAL
+═══════════════════════════════════════════════════════════ */
+#welcomeModal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background-color: var(--overlay-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  backdrop-filter: blur(16px);
+}
+
+#welcomeModal.hidden {
+  display: none !important;
+}
+
+.welcome-modal-content {
+  width: 400px;
+  max-width: 90%;
+  text-align: center;
+  padding: 40px 36px 36px;
+}
+
+.welcome-logo {
+  height: 56px;
+  margin-bottom: 20px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.welcome-tagline {
+  font-size: 13px;
+  opacity: 0.7;
+  margin: 0 0 24px;
+  letter-spacing: 0.3px;
+  line-height: 1.6;
+}
+
+.welcome-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.welcome-features li {
+  font-size: 13px;
+  opacity: 0.85;
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.welcome-cta {
+  width: 100%;
+  margin-top: 0;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SUPPORTER MODAL
+═══════════════════════════════════════════════════════════ */
+#supporterModal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background-color: var(--overlay-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(16px);
+}
+
+.supporter-modal-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+
+.supporter-kofi-btn {
+  display: block;
+  width: 100%;
+  background: #ff5e5b;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 13px;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: inherit;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.supporter-kofi-btn:hover {
+  background: #e04e4b;
+}
+
+.skin-option--supporter {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  margin-top: 2px;
+  padding-top: 10px;
+}
+
+/* ═══════════════════════════════════════════════════════════
    IN-PRODUCTION SKIN MODAL
 ═══════════════════════════════════════════════════════════ */
 #skinProductionModal {
