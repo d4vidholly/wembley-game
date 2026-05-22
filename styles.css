@@ -66,10 +66,10 @@ header {
   color: var(--text-colour);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 2px;
-  padding: 5px 12px;
-  font-size: 11px;
+  padding: 11px 16px;
+  font-size: 13px;
   font-family: inherit;
-  font-weight: bold;
+  font-weight: 600;
   letter-spacing: 0.5px;
   cursor: pointer;
   opacity: 0.6;
@@ -87,7 +87,7 @@ header {
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 2px;
   overflow: hidden;
-  min-width: 130px;
+  min-width: 160px;
   z-index: 2000;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 }
@@ -99,8 +99,8 @@ header {
   background: transparent;
   color: var(--text-colour);
   border: none;
-  padding: 10px 14px;
-  font-size: 12px;
+  padding: 11px 16px;
+  font-size: 13px;
   font-family: inherit;
   cursor: pointer;
   font-weight: 600;
@@ -111,18 +111,6 @@ header {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.skin-option--locked {
-  opacity: 0.5;
-}
-
-.skin-soon-tag {
-  font-size: 10px;
-  font-weight: normal;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  opacity: 0.7;
-  margin-left: 4px;
-}
 
 .wembley-logo {
   height: 74px;
@@ -383,6 +371,20 @@ header {
   height: 22px;
   opacity: 0.5;
   display: block;
+}
+
+.kofi-footer-link {
+  position: absolute;
+  right: 16px;
+  font-size: 0.7rem;
+  color: var(--color-text-muted, #888);
+  text-decoration: none;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.kofi-footer-link:hover {
+  opacity: 1;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1052,6 +1054,16 @@ header {
   font-style: italic;
 }
 
+.demo-panel-tip {
+  margin-top: 16px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border-left: 3px solid var(--accent);
+  border-radius: 2px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
 /* ═══════════════════════════════════════════════════════════
    CUP HEROES — MODAL
 ═══════════════════════════════════════════════════════════ */
@@ -1199,8 +1211,8 @@ header {
 
 .hero-card--locked {
   opacity: 0.45;
-  pointer-events: none;
   filter: grayscale(80%);
+  cursor: pointer;
 }
 
 .hero-card-lock {
@@ -1520,6 +1532,371 @@ body[data-theme="sky"] {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   RETRO SKIN  — Supporter exclusive
+   Activated by: data-theme="retro" on <body>
+   ── Concept: Ceefax / BBC Teletext football results ───────
+   ── Palette ──────────────────────────────────────────────
+   Stage       #000000   pure black
+   Panel       #000080   classic teletext navy
+   Panel hi    #0000CC   lighter navy gradient top
+   Cyan        #00FFFF   chrome · borders · page headers
+   Yellow      #FFFF00   selection · accent · score
+   Red         #CC0000   simulate CTA
+   Orange      #FF8800   prices / gold
+   White       #FFFFFF   body text
+   Magenta     #FF00FF   secondary highlight
+═══════════════════════════════════════════════════════════ */
+[data-theme="retro"] {
+  --main-dark:     #000080;
+  --main-light:    #0000AA;
+  --text-colour:   #ffffff;
+  --border:        #00ffff;
+  --accent:        #ffff00;
+  --accent-subtle: rgba(255, 255, 0, 0.12);
+  --accent-glow:   rgba(255, 255, 0, 0.45);
+  --accent-gold:   #ff8800;
+  --overlay-bg:    rgba(0, 0, 64, 0.92);
+}
+
+body[data-theme="retro"] {
+  background-color: #000000;
+  background-image: none;
+  font-family: 'VT323', 'Courier New', monospace;
+}
+
+/* Scanline overlay */
+body[data-theme="retro"]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.12) 0px,
+    rgba(0, 0, 0, 0.12) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  pointer-events: none;
+  z-index: 9000;
+}
+
+/* Font + sharp corners universally */
+[data-theme="retro"],
+[data-theme="retro"] * {
+  font-family: 'VT323', 'Courier New', monospace !important;
+  border-radius: 0 !important;
+  letter-spacing: 0.5px;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+[data-theme="retro"] header {
+  background: #000000;
+  border-bottom: 3px solid #00ffff;
+  box-shadow: 0 3px 0 rgba(0, 255, 255, 0.2);
+}
+
+/* Page-number bar above logo — Ceefax style */
+[data-theme="retro"] header::before {
+  content: 'BBC CEEFAX   302   FA CUP RESULTS';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: #000080;
+  color: #ffffff;
+  font-family: 'VT323', 'Courier New', monospace !important;
+  font-size: 13px;
+  letter-spacing: 1px;
+  line-height: 20px;
+  padding: 0 12px;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+[data-theme="retro"] .skin-toggle {
+  border: 1px solid #00ffff;
+  color: #00ffff;
+}
+
+[data-theme="retro"] .skin-dropdown {
+  background: #000080;
+  border: 2px solid #00ffff;
+  box-shadow: 4px 4px 0 #00ffff;
+}
+
+/* ── Match area ─────────────────────────────────────────── */
+[data-theme="retro"] .match-area {
+  background: transparent;
+}
+
+/* ── Team panels ────────────────────────────────────────── */
+[data-theme="retro"] .team-panel {
+  background: #000080;
+  border: 4px solid #00ffff;
+  box-shadow: 5px 5px 0 #006666;
+}
+
+[data-theme="retro"] .team-panel img:not(.hero-slot-photo) {
+  box-shadow: 3px 3px 0 #00ffff;
+}
+
+/* ── Dropdowns ──────────────────────────────────────────── */
+[data-theme="retro"] .team-select,
+[data-theme="retro"] .round-dropdown {
+  background-color: #000000;
+  color: #00ffff;
+  font-size: 16px;
+}
+
+[data-theme="retro"] .round-select {
+  border: 2px solid #00ffff;
+  box-shadow: 3px 3px 0 #006666;
+}
+
+[data-theme="retro"] .info-icon-box {
+  background: rgba(0, 255, 255, 0.08);
+  border: 2px solid #00ffff;
+  box-shadow: 3px 3px 0 #006666;
+}
+
+/* ── Simulate button ────────────────────────────────────── */
+[data-theme="retro"] .simulate-btn {
+  background: #cc0000;
+  color: #ffffff;
+  border: none;
+  font-size: 28px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  box-shadow: 5px 5px 0 #660000;
+  transition: box-shadow 0.1s, transform 0.1s;
+}
+
+[data-theme="retro"] .simulate-btn:hover {
+  background: #ff0000;
+  color: #ffff00;
+  border: none;
+  box-shadow: 3px 3px 0 #880000;
+  transform: translate(2px, 2px);
+}
+
+/* ── Modals ─────────────────────────────────────────────── */
+[data-theme="retro"] .modal-content {
+  background: #000080;
+  border: 4px solid #00ffff;
+  box-shadow: 8px 8px 0 #006666;
+}
+
+[data-theme="retro"] .match-info-modal-content {
+  background: #000080;
+  border: 4px solid #00ffff;
+  box-shadow: 8px 8px 0 #006666;
+}
+
+[data-theme="retro"] .cup-heroes-modal-content {
+  background: #000080;
+  border: 4px solid #00ffff;
+  box-shadow: 8px 8px 0 #006666;
+}
+
+[data-theme="retro"] .cup-heroes-info-modal-content {
+  background: #000080;
+  border: 4px solid #00ffff;
+  box-shadow: 8px 8px 0 #006666;
+}
+
+[data-theme="retro"] .cup-heroes-sticky-header {
+  background: linear-gradient(180deg, #000080 70%, transparent 100%);
+  border-bottom: 2px solid #00ffff;
+}
+
+/* ── Match report score ─────────────────────────────────── */
+[data-theme="retro"] #reportScore {
+  color: #ffff00;
+  font-size: 52px;
+  letter-spacing: 8px;
+  text-shadow: 3px 3px 0 #888800;
+}
+
+[data-theme="retro"] #reportRound {
+  color: #00ffff;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* ── Buttons ────────────────────────────────────────────── */
+[data-theme="retro"] .report-button {
+  background: #000080;
+  border: 2px solid #00ffff;
+  letter-spacing: 1px;
+  box-shadow: 3px 3px 0 #006666;
+  transition: box-shadow 0.1s, transform 0.1s;
+}
+
+[data-theme="retro"] .report-button:hover {
+  background: #00ffff;
+  color: #000080;
+  box-shadow: 1px 1px 0 #006666;
+  transform: translate(2px, 2px);
+}
+
+[data-theme="retro"] #cupHeroesClose {
+  background: #000080;
+  border: 2px solid #00ffff;
+  box-shadow: 3px 3px 0 #006666;
+}
+
+[data-theme="retro"] #cupHeroesClose:hover {
+  background: #00ffff;
+  color: #000080;
+}
+
+[data-theme="retro"] .match-info-close {
+  background: #000080;
+  border: 2px solid #00ffff;
+  box-shadow: 3px 3px 0 #006666;
+}
+
+[data-theme="retro"] .match-info-close:hover {
+  background: #00ffff;
+  color: #000080;
+}
+
+/* ── Hero cards ─────────────────────────────────────────── */
+[data-theme="retro"] .hero-card {
+  border: 4px solid var(--pos-color, #00ffff);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="retro"] .hero-card:hover:not(.hero-card--disabled):not(.hero-card--locked) {
+  filter: none;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
+  transform: translate(2px, 2px);
+}
+
+[data-theme="retro"] .hero-card--selected {
+  border: 4px solid #ffff00;
+  filter: none;
+  box-shadow: 4px 4px 0 #888800;
+}
+
+[data-theme="retro"] .hero-card-name {
+  background: #000000;
+  letter-spacing: 2px;
+  font-size: 13px;
+}
+
+[data-theme="retro"] .hero-card-meta {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="retro"] .hero-card-check {
+  background: #ffff00;
+  color: #000000;
+  box-shadow: none;
+}
+
+/* ── Filter bar ─────────────────────────────────────────── */
+[data-theme="retro"] .filter-btn {
+  border: 1px solid #00ffff;
+  color: #00ffff;
+  letter-spacing: 1px;
+  box-shadow: 2px 2px 0 #006666;
+}
+
+[data-theme="retro"] .filter-btn.active {
+  background: #00ffff;
+  color: #000080;
+  box-shadow: none;
+  transform: translate(2px, 2px);
+}
+
+[data-theme="retro"] .filter-btn:hover:not(.active) {
+  background: rgba(0, 255, 255, 0.15);
+}
+
+/* ── Penalty circles ────────────────────────────────────── */
+[data-theme="retro"] .pen-circle {
+  background: #000080;
+  border: 2px solid #00ffff;
+  box-shadow: 2px 2px 0 #006666;
+}
+
+[data-theme="retro"] .pen-circle--scored {
+  background: #ffff00;
+  border-color: #ffff00;
+  box-shadow: 2px 2px 0 #888800;
+}
+
+[data-theme="retro"] .pen-circle--missed {
+  background: #cc0000;
+  border-color: #cc0000;
+  box-shadow: 2px 2px 0 #660000;
+}
+
+/* ── Hero report slots ──────────────────────────────────── */
+[data-theme="retro"] .hero-report-image {
+  border: 2px solid #00ffff;
+  box-shadow: 2px 2px 0 #006666;
+}
+
+[data-theme="retro"] .hero-report-slot--active .hero-report-image {
+  border-color: #ffff00;
+  box-shadow: 2px 2px 0 #888800;
+}
+
+[data-theme="retro"] .hero-report-slot--bonus .hero-report-image {
+  border-color: #ff00ff;
+  box-shadow: 0 0 0 2px #ff00ff, 2px 2px 0 #880088;
+}
+
+[data-theme="retro"] .hero-report-tooltip {
+  background: #000080;
+  border: 1px solid #00ffff;
+  box-shadow: 2px 2px 0 #006666;
+}
+
+/* ── Match info rows ────────────────────────────────────── */
+[data-theme="retro"] .match-info-row {
+  border-bottom: 1px solid #00ffff;
+}
+
+/* ── Cup Heroes count ───────────────────────────────────── */
+[data-theme="retro"] #cupHeroesCount.count-full {
+  color: #ffff00;
+}
+
+/* ── Demo dots ──────────────────────────────────────────── */
+[data-theme="retro"] .demo-dot {
+  background: #000080;
+  border: 1px solid #00ffff;
+  border-radius: 0 !important;
+  width: 10px;
+  height: 10px;
+}
+
+[data-theme="retro"] .demo-dot.active {
+  background: #00ffff;
+}
+
+/* ── Welcome / Supporter modals ─────────────────────────── */
+[data-theme="retro"] .welcome-features li {
+  background: rgba(0, 255, 255, 0.07);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+[data-theme="retro"] .simulate-btn {
+  letter-spacing: 4px;
+}
+
+/* ── Banner / footer ────────────────────────────────────── */
+[data-theme="retro"] .banner {
+  border-top: 2px solid #00ffff;
+  background: #000000;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
    WELCOME MODAL
 ═══════════════════════════════════════════════════════════ */
 #welcomeModal {
@@ -1589,7 +1966,8 @@ body[data-theme="sky"] {
 /* ═══════════════════════════════════════════════════════════
    SUPPORTER MODAL
 ═══════════════════════════════════════════════════════════ */
-#supporterModal {
+#supporterModal,
+#heroUnlockModal {
   position: fixed;
   top: 0; left: 0;
   width: 100vw; height: 100vh;
@@ -1597,7 +1975,7 @@ body[data-theme="sky"] {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
+  z-index: 3000;
   backdrop-filter: blur(16px);
 }
 
@@ -1630,6 +2008,416 @@ body[data-theme="sky"] {
   border-top: 1px solid rgba(255,255,255,0.1);
   margin-top: 2px;
   padding-top: 10px;
+}
+
+.supporter-password-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.supporter-password-input {
+  flex: 1;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #fff;
+}
+
+.supporter-password-input::placeholder {
+  color: rgba(255,255,255,0.4);
+}
+
+.supporter-password-input:focus {
+  outline: none;
+  border-color: rgba(255,255,255,0.6);
+}
+
+.supporter-unlock-btn {
+  background: var(--accent, #AAA54A);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.supporter-unlock-btn:hover {
+  opacity: 0.85;
+}
+
+.supporter-password-error {
+  font-size: 12px;
+  color: #ff8080;
+  margin: 0 0 8px;
+  opacity: 1;
+}
+
+.supporter-dismiss {
+  display: block;
+  margin-top: 16px;
+  font-size: 13px;
+  opacity: 0.5;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.supporter-dismiss:hover {
+  opacity: 0.8;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SUPPORTER SKIN  — Night ★  (Ko-fi exclusive)
+   Activated by: data-theme="supporter" on <body>
+   ── Concept: Champions League · Wembley under floodlights ─
+   ── Palette ──────────────────────────────────────────────
+   Stage deep    #020918   near-black navy — the night sky
+   Panel base    #020d2e   darkest panel surface
+   Panel mid     #0d2158   gradient light end
+   Gold          #c9a227   UCL trophy gold — accent · borders
+   Gold hi       #e8c84a   hover / glow highlights
+   Border quiet  #1a3060   subtle internal dividers
+   White         #ffffff   body text
+   Overlay       rgba(2,9,24,0.94)
+═══════════════════════════════════════════════════════════ */
+[data-theme="supporter"] {
+  --main-dark:     #020d2e;
+  --main-light:    #0d2158;
+  --text-colour:   #ffffff;
+  --border:        #1a3060;
+  --accent:        #c9a227;
+  --accent-subtle: rgba(201, 162, 39, 0.12);
+  --accent-glow:   rgba(201, 162, 39, 0.4);
+  --accent-gold:   #c9a227;
+  --overlay-bg:    rgba(2, 9, 24, 0.94);
+}
+
+/* ── Background: night sky + stadium atmosphere ─────────── */
+body[data-theme="supporter"] {
+  background-color: #020918;
+  background-image:
+    /* Blue atmosphere — floodlight haze above the pitch */
+    radial-gradient(ellipse 130% 55% at 50% -5%, rgba(14, 46, 130, 0.6) 0%, transparent 62%),
+    /* Green pitch glow bleeding up from below */
+    radial-gradient(ellipse 80% 28% at 50% 104%, rgba(4, 28, 10, 0.8) 0%, transparent 55%),
+    /* Star field — scattered white points */
+    radial-gradient(circle at  8% 11%, rgba(255,255,255,0.80) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 19%  5%, rgba(255,255,255,0.55) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 31% 17%, rgba(255,255,255,0.45) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 44%  8%, rgba(255,255,255,0.70) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 56% 14%, rgba(255,255,255,0.50) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 67%  4%, rgba(255,255,255,0.65) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 79% 19%, rgba(255,255,255,0.45) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 91%  9%, rgba(255,255,255,0.60) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 13% 31%, rgba(255,255,255,0.35) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 38% 26%, rgba(255,255,255,0.40) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 62% 33%, rgba(255,255,255,0.30) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 84% 28%, rgba(255,255,255,0.38) 0.5px, transparent 1.5px),
+    radial-gradient(circle at  3% 48%, rgba(255,255,255,0.28) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 97% 42%, rgba(255,255,255,0.32) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 25% 52%, rgba(255,255,255,0.22) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 73% 57%, rgba(255,255,255,0.25) 0.5px, transparent 1.5px);
+  background-attachment: fixed;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+[data-theme="supporter"] header {
+  background: linear-gradient(180deg, #0c1e4a 0%, #020918 100%);
+  border-bottom: 2px solid #c9a227;
+  box-shadow: 0 2px 24px rgba(201, 162, 39, 0.12), 0 4px 40px rgba(2, 9, 24, 0.9);
+}
+
+[data-theme="supporter"] .wembley-logo {
+  filter: drop-shadow(0 0 10px rgba(201, 162, 39, 0.25));
+}
+
+[data-theme="supporter"] .skin-toggle {
+  border-color: rgba(201, 162, 39, 0.45);
+  color: #c9a227;
+  font-family: 'Cormorant Garant', Georgia, serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  opacity: 1;
+}
+
+[data-theme="supporter"] .skin-toggle:hover {
+  border-color: #c9a227;
+  color: #e8c84a;
+}
+
+[data-theme="supporter"] .skin-dropdown {
+  background: #020918;
+  border: 1px solid rgba(201, 162, 39, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(201, 162, 39, 0.08);
+}
+
+/* ── Team panels ────────────────────────────────────────── */
+[data-theme="supporter"] .team-panel {
+  background: linear-gradient(160deg, #0d2158 0%, #020d2e 55%, #020918 100%);
+  border: 2px solid #c9a227;
+  box-shadow:
+    0 8px 40px rgba(2, 9, 24, 0.8),
+    inset 0 1px 0 rgba(201, 162, 39, 0.18),
+    inset 0 0 60px rgba(201, 162, 39, 0.025);
+}
+
+[data-theme="supporter"] .team-panel img:not(.hero-slot-photo) {
+  box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.35), 0 4px 20px rgba(0, 0, 0, 0.7);
+}
+
+/* ── Dropdowns ──────────────────────────────────────────── */
+[data-theme="supporter"] .team-select,
+[data-theme="supporter"] .round-dropdown {
+  background-color: #020918;
+  color: #ffffff;
+}
+
+[data-theme="supporter"] .round-select {
+  border: 1px solid rgba(201, 162, 39, 0.3);
+}
+
+[data-theme="supporter"] .info-icon-box {
+  background: rgba(201, 162, 39, 0.05);
+  border: 1px solid rgba(201, 162, 39, 0.22);
+}
+
+/* ── Simulate button — the crown jewel ─────────────────── */
+[data-theme="supporter"] .simulate-btn {
+  background: linear-gradient(180deg, #e8c84a 0%, #c9a227 48%, #9a7510 100%);
+  color: #020918;
+  border: none;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  box-shadow:
+    0 4px 28px rgba(201, 162, 39, 0.55),
+    0 2px 8px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+[data-theme="supporter"] .simulate-btn:hover {
+  background: linear-gradient(180deg, #f0d460 0%, #d4aa30 48%, #a88018 100%);
+  color: #020918;
+  border: none;
+  box-shadow:
+    0 6px 36px rgba(201, 162, 39, 0.75),
+    0 2px 8px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+[data-theme="supporter"] .simulate-btn:disabled {
+  background: rgba(201, 162, 39, 0.15);
+  color: rgba(255, 255, 255, 0.25);
+  box-shadow: none;
+}
+
+/* ── Modals ─────────────────────────────────────────────── */
+[data-theme="supporter"] .modal-content {
+  background: linear-gradient(160deg, #0d2158 0%, #020d2e 55%, #020918 100%);
+  border: 2px solid #c9a227;
+  box-shadow: 0 20px 80px rgba(2, 9, 24, 0.97), 0 0 0 1px rgba(201, 162, 39, 0.08);
+}
+
+[data-theme="supporter"] .match-info-modal-content {
+  background: linear-gradient(160deg, #0d2158 0%, #020d2e 55%, #020918 100%);
+  border: 2px solid #c9a227;
+  box-shadow: 0 20px 80px rgba(2, 9, 24, 0.97);
+}
+
+[data-theme="supporter"] .cup-heroes-modal-content {
+  background: linear-gradient(160deg, #0d2158 0%, #020918 100%);
+  border: 2px solid #c9a227;
+  box-shadow: 0 20px 80px rgba(2, 9, 24, 0.97);
+}
+
+[data-theme="supporter"] .cup-heroes-info-modal-content {
+  background: linear-gradient(160deg, #0d2158 0%, #020918 100%);
+  border: 2px solid #c9a227;
+  box-shadow: 0 20px 80px rgba(2, 9, 24, 0.97);
+}
+
+[data-theme="supporter"] .cup-heroes-sticky-header {
+  background: linear-gradient(180deg, #0d2158 65%, transparent 100%);
+  border-bottom: 1px solid rgba(201, 162, 39, 0.25);
+}
+
+/* ── Match report ────────────────────────────────────────── */
+[data-theme="supporter"] #reportScore {
+  color: #c9a227;
+  font-size: 44px;
+  text-shadow: 0 0 24px rgba(201, 162, 39, 0.35), 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+[data-theme="supporter"] #reportRound {
+  color: rgba(201, 162, 39, 0.65);
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-family: 'Cormorant Garant', Georgia, serif;
+}
+
+/* ── Buttons ────────────────────────────────────────────── */
+[data-theme="supporter"] .report-button {
+  background: rgba(201, 162, 39, 0.07);
+  border: 1px solid rgba(201, 162, 39, 0.38);
+  color: #c9a227;
+}
+
+[data-theme="supporter"] .report-button:hover {
+  background: rgba(201, 162, 39, 0.14);
+  color: #e8c84a;
+  box-shadow: 0 0 12px rgba(201, 162, 39, 0.18);
+}
+
+[data-theme="supporter"] #cupHeroesClose,
+[data-theme="supporter"] .match-info-close {
+  background: rgba(201, 162, 39, 0.07);
+  border: 1px solid rgba(201, 162, 39, 0.38);
+  color: #c9a227;
+}
+
+[data-theme="supporter"] #cupHeroesClose:hover,
+[data-theme="supporter"] .match-info-close:hover {
+  background: rgba(201, 162, 39, 0.14);
+  color: #e8c84a;
+}
+
+/* ── Hero cards ─────────────────────────────────────────── */
+[data-theme="supporter"] .hero-card {
+  background: #020d2e;
+  border: 2px solid rgba(201, 162, 39, 0.18);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="supporter"] .hero-card:hover:not(.hero-card--disabled):not(.hero-card--locked) {
+  border-color: rgba(201, 162, 39, 0.55);
+  box-shadow: 0 0 18px rgba(201, 162, 39, 0.18), 0 4px 20px rgba(0, 0, 0, 0.6);
+  transform: translateY(-2px);
+  filter: none;
+}
+
+[data-theme="supporter"] .hero-card--selected {
+  border: 2px solid #c9a227;
+  filter: none;
+  box-shadow: 0 0 22px rgba(201, 162, 39, 0.38), 0 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="supporter"] .hero-card-check {
+  background: #c9a227;
+  color: #020918;
+  box-shadow: 0 0 10px rgba(201, 162, 39, 0.5);
+}
+
+[data-theme="supporter"] .hero-card-name {
+  background: rgba(0, 0, 0, 0.65);
+  letter-spacing: 1px;
+}
+
+[data-theme="supporter"] .hero-card-meta {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+/* ── Filter bar ─────────────────────────────────────────── */
+[data-theme="supporter"] .filter-btn {
+  border: 1px solid rgba(201, 162, 39, 0.28);
+  color: rgba(201, 162, 39, 0.65);
+}
+
+[data-theme="supporter"] .filter-btn.active {
+  background: rgba(201, 162, 39, 0.14);
+  border-color: #c9a227;
+  color: #c9a227;
+}
+
+[data-theme="supporter"] .filter-btn:hover:not(.active) {
+  background: rgba(201, 162, 39, 0.07);
+  color: rgba(201, 162, 39, 0.85);
+}
+
+/* ── Hero report slots ──────────────────────────────────── */
+[data-theme="supporter"] .hero-report-image {
+  border: 2px solid rgba(201, 162, 39, 0.2);
+}
+
+[data-theme="supporter"] .hero-report-slot--active .hero-report-image {
+  border-color: #c9a227;
+  box-shadow: 0 0 10px rgba(201, 162, 39, 0.3);
+}
+
+[data-theme="supporter"] .hero-report-slot--bonus .hero-report-image {
+  border-color: #e8c84a;
+  box-shadow: 0 0 16px rgba(201, 162, 39, 0.55);
+}
+
+[data-theme="supporter"] .hero-report-tooltip {
+  background: #020d2e;
+  border: 1px solid rgba(201, 162, 39, 0.3);
+}
+
+/* ── Penalty shootout ───────────────────────────────────── */
+[data-theme="supporter"] .pen-circle {
+  background: #020d2e;
+  border: 2px solid rgba(201, 162, 39, 0.28);
+}
+
+[data-theme="supporter"] .pen-circle--scored {
+  background: #c9a227;
+  border-color: #c9a227;
+  box-shadow: 0 0 10px rgba(201, 162, 39, 0.45);
+}
+
+[data-theme="supporter"] .pen-circle--missed {
+  background: #8b1a1a;
+  border-color: #8b1a1a;
+}
+
+/* ── Hero slots (team panel) ────────────────────────────── */
+[data-theme="supporter"] .hero-slot {
+  background: rgba(201, 162, 39, 0.05);
+  border: 1px solid rgba(201, 162, 39, 0.18);
+}
+
+[data-theme="supporter"] .hero-slot:hover {
+  background: rgba(201, 162, 39, 0.1);
+}
+
+/* ── Demo dots ──────────────────────────────────────────── */
+[data-theme="supporter"] .demo-dot {
+  background: rgba(201, 162, 39, 0.18);
+}
+
+[data-theme="supporter"] .demo-dot.active {
+  background: #c9a227;
+}
+
+/* ── Match info rows ────────────────────────────────────── */
+[data-theme="supporter"] .match-info-row {
+  border-bottom: 1px solid rgba(201, 162, 39, 0.1);
+}
+
+/* ── Cup Heroes count ───────────────────────────────────── */
+[data-theme="supporter"] #cupHeroesCount.count-full {
+  color: #c9a227;
+}
+
+/* ── Welcome features ───────────────────────────────────── */
+[data-theme="supporter"] .welcome-features li {
+  background: rgba(201, 162, 39, 0.06);
+  border: 1px solid rgba(201, 162, 39, 0.14);
+}
+
+/* ── Footer ─────────────────────────────────────────────── */
+[data-theme="supporter"] .banner {
+  background: rgba(2, 9, 24, 0.96);
+  border-top: 1px solid rgba(201, 162, 39, 0.2);
 }
 
 /* ═══════════════════════════════════════════════════════════

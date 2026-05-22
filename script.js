@@ -43,6 +43,7 @@ let teams = {};
 let heroes = {};
 let selectedHeroesHome = [];
 let selectedHeroesAway = [];
+let heroesUnlocked = false;
 
 // ────────────────────────────────────────────────────────────
 // DATA — FETCH & PARSE FROM GOOGLE SHEETS
@@ -522,7 +523,6 @@ function simulateMatch(homeName, awayName, round, replay = false) {
   // — Determine result —
   let winnerKey, resultText;
   let isPenaltyShootout = false;
-  let penaltyWinner     = null;
 
   if (homeGoals > awayGoals) {
     winnerKey  = 'home';
@@ -538,14 +538,18 @@ function simulateMatch(homeName, awayName, round, replay = false) {
 
   } else {
     if (isWembley(round) || replay) {
-      penaltyWinner     = Math.random() < 0.5 ? homeName : awayName;
-      winnerKey         = penaltyWinner === homeName ? 'home' : 'away';
       isPenaltyShootout = true;
     } else {
       winnerKey  = 'draw';
       resultText = 'Match Drawn – Replay Scheduled';
       showReplayButton(homeName, awayName, round);
     }
+  }
+
+  // — Penalty shootout takes over — earnings are calculated in finishShootout —
+  if (isPenaltyShootout) {
+    startPenaltyShootout(homeName, awayName, round);
+    return;
   }
 
   // — Gate revenue —
@@ -565,12 +569,6 @@ function simulateMatch(homeName, awayName, round, replay = false) {
 
   // — Totals —
   updateTotaliser(prize.home, prize.away, homeBonusAmount, awayBonusAmount);
-
-  // — Penalty shootout takes over modal display —
-  if (isPenaltyShootout) {
-    startPenaltyShootout(homeName, awayName, penaltyWinner, round);
-    return;
-  }
 
   // — Show modal —
   document.getElementById('reportResult').innerText = resultText;
@@ -653,24 +651,34 @@ function resetPenaltyUI() {
   });
 }
 
-function computePenaltyResults(winner, homeName, awayName) {
-  function generateLoserKicks() {
-    const kicks = [];
-    for (let i = 0; i < 4; i++) kicks.push(Math.random() > 0.25);
-    const allScored = kicks.every(k => k);
-    kicks.push(allScored ? false : Math.random() > 0.25);
-    return kicks;
+function computePenaltyResults() {
+  const home = [];
+  const away = [];
+
+  for (let i = 0; i < 4; i++) {
+    home.push(Math.random() < 0.8);
+    away.push(Math.random() < 0.8);
   }
-  const winnerKicks = [true, true, true, true, true];
-  const loserKicks  = generateLoserKicks();
-  return {
-    home: winner === homeName ? winnerKicks : loserKicks,
-    away: winner === awayName ? winnerKicks : loserKicks
-  };
+
+  const h4 = home.filter(Boolean).length;
+  const a4 = away.filter(Boolean).length;
+
+  if (h4 === a4) {
+    // Level after 4: home goes first, away always opposite
+    const h5 = Math.random() < 0.8;
+    home.push(h5);
+    away.push(!h5);
+  } else {
+    // Not level: both kick independently
+    home.push(Math.random() < 0.8);
+    away.push(Math.random() < 0.8);
+  }
+
+  return { home, away };
 }
 
-function startPenaltyShootout(homeName, awayName, winner, round) {
-  const penResults = computePenaltyResults(winner, homeName, awayName);
+function startPenaltyShootout(homeName, awayName, round) {
+  const penResults = computePenaltyResults();
 
   const sequence = [];
   for (let i = 0; i < 5; i++) {
@@ -688,15 +696,15 @@ function startPenaltyShootout(homeName, awayName, winner, round) {
     startBtn.classList.add('hidden');
     document.getElementById('reportResult').innerText = 'Penalty Shoot Out in Play';
     document.getElementById('penaltyCirclesSection').classList.remove('hidden');
-    animateKicks(sequence, 0, 0, 0, winner, round, homeName, awayName);
+    animateKicks(sequence, 0, 0, 0, round, homeName, awayName);
   };
 
   document.getElementById('matchReportModal').classList.remove('hidden');
 }
 
-function animateKicks(sequence, index, homeScore, awayScore, winner, round, homeName, awayName) {
+function animateKicks(sequence, index, homeScore, awayScore, round, homeName, awayName) {
   if (index >= sequence.length) {
-    finishShootout(homeScore, awayScore, winner, round, homeName, awayName);
+    finishShootout(homeScore, awayScore, round, homeName, awayName);
     return;
   }
 
@@ -723,18 +731,29 @@ function animateKicks(sequence, index, homeScore, awayScore, winner, round, home
 
     if (homeCannotWin || awayCannotWin) {
       setTimeout(() => {
-        finishShootout(newHomeScore, newAwayScore, winner, round, homeName, awayName);
+        finishShootout(newHomeScore, newAwayScore, round, homeName, awayName);
       }, PEN_KICK_DURATION_MS * 0.2);
       return;
     }
 
     setTimeout(() => {
-      animateKicks(sequence, index + 1, newHomeScore, newAwayScore, winner, round, homeName, awayName);
+      animateKicks(sequence, index + 1, newHomeScore, newAwayScore, round, homeName, awayName);
     }, PEN_KICK_DURATION_MS * 0.2);
   }, PEN_KICK_DURATION_MS * 0.8);
 }
 
-function finishShootout(homeScore, awayScore, winner, round, homeName, awayName) {
+function finishShootout(homeScore, awayScore, round, homeName, awayName) {
+  // Derive winner from actual kick results (coin flip if somehow level — safety net only)
+  let winnerKey;
+  if (homeScore > awayScore) {
+    winnerKey = 'home';
+  } else if (awayScore > homeScore) {
+    winnerKey = 'away';
+  } else {
+    winnerKey = Math.random() < 0.5 ? 'home' : 'away';
+  }
+  const winner = winnerKey === 'home' ? homeName : awayName;
+
   const penDisplay = document.getElementById('penaltyScoreDisplay');
   penDisplay.textContent = `${homeScore} - ${awayScore} on pens`;
   penDisplay.classList.remove('hidden');
@@ -744,6 +763,19 @@ function finishShootout(homeScore, awayScore, winner, round, homeName, awayName)
     : `${winner} win on penalties and progress to the next round`;
 
   document.getElementById('penaltyCirclesSection').classList.add('hidden');
+
+  // Calculate earnings now that we know the winner
+  const prize = calculatePrizeMoney(homeName, winnerKey, round);
+  document.querySelector('#ticketHome p').textContent = formatMoney(prize.home);
+  document.querySelector('#ticketAway p').textContent = formatMoney(prize.away);
+
+  const homeBonusAmount = calculateRoundBonus(round, teams[homeName].stars);
+  const awayBonusAmount = calculateRoundBonus(round, teams[awayName].stars);
+  document.querySelector('#prizeHome p').textContent = formatMoney(homeBonusAmount);
+  document.querySelector('#prizeAway p').textContent = formatMoney(awayBonusAmount);
+
+  updateTotaliser(prize.home, prize.away, homeBonusAmount, awayBonusAmount);
+
   document.getElementById('matchEarningsSection').style.display = '';
   document.querySelector('.modal-buttons').style.display = '';
 
@@ -850,12 +882,19 @@ function advanceDemoPanel() {
 
 function setSkin(skin) {
   document.body.dataset.theme = skin;
-  const labels = { classic: 'Classic', sky: 'Sky' };
+  const labels = { classic: 'Classic 2016', sky: 'Sky 2016', retro: 'Retro', supporter: 'Supporter 2016' };
   document.getElementById('skinToggle').textContent = (labels[skin] || skin) + ' ▾';
   document.querySelectorAll('.skin-option[data-skin]').forEach(btn => {
     btn.style.display = btn.dataset.skin === skin ? 'none' : '';
   });
   document.getElementById('skinDropdown').classList.add('hidden');
+}
+
+function openHeroUnlockModal() {
+  document.getElementById('heroUnlockPassword').value = '';
+  document.getElementById('heroUnlockError').classList.add('hidden');
+  document.getElementById('heroUnlockModal').classList.remove('hidden');
+  document.getElementById('heroUnlockPassword').focus();
 }
 
 function openCupHeroesModal(side, filter = 'All') {
@@ -890,7 +929,7 @@ function renderHeroCards(side, filter) {
 
   grid.innerHTML = filtered.map(hero => {
     const isSelected    = selected.includes(hero.id);
-    const isUnavailable = !hero.available;
+    const isUnavailable = !hero.available && !heroesUnlocked;
     const takenByOther  = !isSelected && otherSelected.includes(hero.id);
     const posConflict   = selected.some(id => heroes[id]?.position === hero.position && id !== hero.id);
     const atMax         = selected.length >= 3 && !isSelected && !posConflict;
@@ -898,8 +937,9 @@ function renderHeroCards(side, filter) {
     const initials      = hero.name.slice(0, 2).toUpperCase();
     const bgColor       = POSITION_COLORS[hero.position] || '#333';
     const stateClass    = isUnavailable ? ' hero-card--locked' : (isSelected ? ' hero-card--selected' : (isDisabled ? ' hero-card--disabled' : ''));
+    const onclick       = isUnavailable ? `openHeroUnlockModal()` : `toggleHero('${side}', '${hero.id}')`;
 
-    return `<div class="hero-card${stateClass}" style="--pos-color: ${bgColor}" onclick="toggleHero('${side}', '${hero.id}')">
+    return `<div class="hero-card${stateClass}" style="--pos-color: ${bgColor}" onclick="${onclick}">
       <div class="hero-card-image" style="background: ${bgColor}">
         <img src="${HEROES_PATH}${hero.id}.png" class="hero-card-photo" alt="" onerror="this.src='${HEROES_PATH}${hero.id}.jpg';this.onerror=function(){this.style.display='none';this.nextElementSibling.style.display='block'}">
         <span class="hero-card-initials">${initials}</span>
@@ -918,7 +958,7 @@ function renderHeroCards(side, filter) {
 
 function toggleHero(side, heroId) {
   const hero = heroes[heroId];
-  if (!hero || !hero.available) return;
+  if (!hero || (!hero.available && !heroesUnlocked)) return;
 
   const selected      = side === 'home' ? selectedHeroesHome : selectedHeroesAway;
   const otherSelected = side === 'home' ? selectedHeroesAway : selectedHeroesHome;
@@ -1033,6 +1073,52 @@ window.addEventListener('load', function () {
     });
   });
   document.addEventListener('click', () => skinDropdown.classList.add('hidden'));
+
+  const supporterUnlockBtn = document.getElementById('supporterUnlockBtn');
+  const supporterPasswordInput = document.getElementById('supporterPassword');
+  const supporterPasswordError = document.getElementById('supporterPasswordError');
+
+  function trySupporterUnlock() {
+    if (supporterPasswordInput.value === 'Wembley') {
+      document.getElementById('supporterModal').classList.add('hidden');
+      supporterPasswordInput.value = '';
+      supporterPasswordError.classList.add('hidden');
+      setSkin('supporter');
+    } else {
+      supporterPasswordError.classList.remove('hidden');
+      supporterPasswordInput.value = '';
+      supporterPasswordInput.focus();
+    }
+  }
+
+  supporterUnlockBtn.addEventListener('click', trySupporterUnlock);
+  supporterPasswordInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') trySupporterUnlock();
+  });
+
+  const heroUnlockBtn = document.getElementById('heroUnlockBtn');
+  const heroUnlockPasswordInput = document.getElementById('heroUnlockPassword');
+  const heroUnlockError = document.getElementById('heroUnlockError');
+
+  function tryHeroUnlock() {
+    if (heroUnlockPasswordInput.value === 'Wembley') {
+      heroesUnlocked = true;
+      document.getElementById('heroUnlockModal').classList.add('hidden');
+      const side = document.getElementById('cupHeroesModal').dataset.side;
+      const filter = document.querySelector('.filter-btn.active')?.dataset.filter || 'All';
+      renderHeroCards(side, filter);
+    } else {
+      heroUnlockError.classList.remove('hidden');
+      heroUnlockPasswordInput.value = '';
+      heroUnlockPasswordInput.focus();
+    }
+  }
+
+  heroUnlockBtn.addEventListener('click', tryHeroUnlock);
+  heroUnlockPasswordInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') tryHeroUnlock();
+  });
+
   setSkin('classic');
 
   if (!sessionStorage.getItem('wembley-welcomed')) {

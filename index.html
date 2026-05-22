@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://docs.google.com">
   <link rel="preconnect" href="https://spreadsheets.google.com">
-  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=VT323&family=Cormorant+Garant:wght@600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js" integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb" crossorigin="anonymous" defer></script>
   <script src="script.js" defer></script>
 </head>
@@ -29,10 +29,10 @@
   <div class="skin-nav" id="skinNav">
     <button class="skin-toggle" id="skinToggle">Classic &#9662;</button>
     <div class="skin-dropdown hidden" id="skinDropdown">
-      <button class="skin-option" data-skin="classic">Classic</button>
-      <button class="skin-option" data-skin="sky">Sky</button>
-      <button class="skin-option skin-option--locked" data-skin="retro">Retro <span class="skin-soon-tag">soon</span></button>
-      <button class="skin-option skin-option--locked skin-option--supporter" data-skin="supporter">Supporter ☕</button>
+      <button class="skin-option" data-skin="classic">Classic 2016</button>
+      <button class="skin-option" data-skin="sky">Sky 2016</button>
+      <button class="skin-option skin-option--supporter" data-skin="supporter">Supporter 2016 ☕</button>
+      <button class="skin-option" data-skin="retro">Retro</button>
     </div>
   </div>
   </header>
@@ -159,6 +159,7 @@
 <footer>
   <div class="banner">
     <img src="images/DHD-logo.png" class="dhd-logo" alt="DHD">
+    <a class="kofi-footer-link" href="https://ko-fi.com/davidholly" target="_blank" rel="noopener">☕ Ko-fi</a>
   </div>
 </footer>
 
@@ -331,7 +332,6 @@
           <div class="demo-card-body">
             <div class="demo-card-name">Goalkeeper</div>
             <div class="demo-card-primary">80% chance to reduce the opposition's score by 1</div>
-            <div class="demo-card-secondary">⚡ Some heroes boost to 90% at Wembley</div>
           </div>
         </div>
         <div class="demo-card">
@@ -339,7 +339,6 @@
           <div class="demo-card-body">
             <div class="demo-card-name">Defender</div>
             <div class="demo-card-primary">80% chance to reduce the opposition's score by 1</div>
-            <div class="demo-card-secondary">⚡ Some heroes trigger bonuses in specific match conditions</div>
           </div>
         </div>
       </div>
@@ -355,7 +354,6 @@
           <div class="demo-card-body">
             <div class="demo-card-name">Midfielder</div>
             <div class="demo-card-primary">80% chance to add a goal for your team</div>
-            <div class="demo-card-secondary">⚡ Secondary bonuses can fire in cup-specific scenarios</div>
           </div>
         </div>
         <div class="demo-card">
@@ -363,16 +361,26 @@
           <div class="demo-card-body">
             <div class="demo-card-name">Striker</div>
             <div class="demo-card-primary">80% chance to add a goal for your team</div>
-            <div class="demo-card-secondary">⚡ e.g. Haaland: 50% chance to score again vs. lower division teams</div>
           </div>
         </div>
       </div>
       <p class="demo-panel-note">Attacking heroes can break deadlocks and turn the game — but they cost more. Choose wisely.</p>
     </div>
 
+    <!-- Panel 5: FA Cup Heroics -->
+    <div class="demo-panel" data-panel="5">
+      <h2>FA Cup Heroics</h2>
+      <div class="cup-heroes-info-body">
+        <p>Every hero carries a <strong>secondary bonus</strong> — a special ability rooted in their real FA Cup story. These don't fire automatically. Each one has a unique trigger condition tied to that player's legend.</p>
+        <p>Some thrive under the Wembley lights. Others rise against the odds. A few only show up when the moment is right.</p>
+        <div class="demo-panel-tip">💡 <strong>Tip:</strong> Keep an eye on Match Reports for clues on how to activate a hero's secondary bonus.</div>
+      </div>
+    </div>
+
     <!-- Dots -->
     <div class="demo-dots" id="demoDots">
       <span class="demo-dot active"></span>
+      <span class="demo-dot"></span>
       <span class="demo-dot"></span>
       <span class="demo-dot"></span>
       <span class="demo-dot"></span>
@@ -418,13 +426,33 @@
   </div>
 </div>
 
+<div id="heroUnlockModal" class="modal hidden">
+  <div class="modal-content skin-production-modal-content">
+    <div class="supporter-modal-icon">🔒</div>
+    <h2>Locked Hero</h2>
+    <p>Support Wembley on Ko-fi to receive the password and unlock the Supporter skin and all heroes.</p>
+    <a class="supporter-kofi-btn" href="https://ko-fi.com/davidholly" target="_blank" rel="noopener">Support on Ko-fi</a>
+    <div class="supporter-password-row">
+      <input type="password" id="heroUnlockPassword" class="supporter-password-input" placeholder="Enter password">
+      <button id="heroUnlockBtn" class="supporter-unlock-btn">Unlock</button>
+    </div>
+    <p class="supporter-password-error hidden" id="heroUnlockError">Incorrect password. Try again.</p>
+    <span class="supporter-dismiss" onclick="document.getElementById('heroUnlockModal').classList.add('hidden')">Maybe Later</span>
+  </div>
+</div>
+
 <div id="supporterModal" class="modal hidden">
   <div class="modal-content skin-production-modal-content">
     <div class="supporter-modal-icon">☕</div>
     <h2>Supporter Skin</h2>
-    <p>Unlock an exclusive skin by supporting Wembley on Ko-fi. Every coffee keeps the game going!</p>
-    <button class="supporter-kofi-btn" id="kofiBtn">Support on Ko-fi</button>
-    <button class="match-info-close" onclick="document.getElementById('supporterModal').classList.add('hidden')">Maybe Later</button>
+    <p>Support Wembley on Ko-fi to receive the password and unlock the Supporter skin and all heroes.</p>
+    <a class="supporter-kofi-btn" href="https://ko-fi.com/davidholly" target="_blank" rel="noopener">Support on Ko-fi</a>
+    <div class="supporter-password-row">
+      <input type="password" id="supporterPassword" class="supporter-password-input" placeholder="Enter password">
+      <button id="supporterUnlockBtn" class="supporter-unlock-btn">Unlock</button>
+    </div>
+    <p class="supporter-password-error hidden" id="supporterPasswordError">Incorrect password. Try again.</p>
+    <span class="supporter-dismiss" onclick="document.getElementById('supporterModal').classList.add('hidden')">Maybe Later</span>
   </div>
 </div>
 
