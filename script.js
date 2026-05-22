@@ -363,9 +363,10 @@ function applyHeroBonuses(homeGoals, awayGoals, homeName, awayName, round) {
       const wembleyCondition = heroId === 'beasant' ? oppStars > ownStars : true;
       const wembleyBoost = wembley && wembleyCondition && hero.secondary_chance > hero.primary_chance;
       const chance = wembleyBoost ? hero.secondary_chance : hero.primary_chance;
-      if (Math.random() * 100 < chance) {
-        if (isHome)  awayGoals = Math.max(0, awayGoals - 1);
-        else         homeGoals = Math.max(0, homeGoals - 1);
+      const goalsAtRisk = isHome ? awayGoals : homeGoals;
+      if (goalsAtRisk > 0 && Math.random() * 100 < chance) {
+        if (isHome)  awayGoals--;
+        else         homeGoals--;
         event.primaryFired = true;
         if (wembleyBoost) {
           event.secondaryFired = true;
@@ -424,8 +425,15 @@ function applyHeroBonuses(homeGoals, awayGoals, homeName, awayName, round) {
     (isHome ? homeHeroEvents : awayHeroEvents).push(event);
   }
 
-  selectedHeroesHome.forEach(id => applyHero(id, true));
-  selectedHeroesAway.forEach(id => applyHero(id, false));
+  const isDefensive = id => heroes[id] && (heroes[id].position === 'GK' || heroes[id].position === 'DEF');
+  const isOffensive = id => heroes[id] && (heroes[id].position === 'MID' || heroes[id].position === 'STR');
+
+  // Phase 1: defensive heroes reduce base rolled goals
+  selectedHeroesHome.filter(isDefensive).forEach(id => applyHero(id, true));
+  selectedHeroesAway.filter(isDefensive).forEach(id => applyHero(id, false));
+  // Phase 2: offensive heroes add on top — cannot be cancelled by phase 1
+  selectedHeroesHome.filter(isOffensive).forEach(id => applyHero(id, true));
+  selectedHeroesAway.filter(isOffensive).forEach(id => applyHero(id, false));
   return { homeGoals, awayGoals, homeHeroEvents, awayHeroEvents };
 }
 
