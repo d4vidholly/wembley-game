@@ -434,6 +434,10 @@ footer {
   align-items: center;
 }
 
+#matchEarningsSection {
+  text-align: center;
+}
+
 /* Score row — grid so the score stays pinned to centre regardless of name length */
 .match-result--score {
   display: grid;
@@ -473,7 +477,7 @@ footer {
 }
 
 #reportHomeBadge, #reportAwayBadge {
-  box-shadow: 0 4px 14px rgba(0,0,0,0.45), 0 1px 4px rgba(0,0,0,0.3);
+  filter: drop-shadow(0 4px 14px rgba(0,0,0,0.45)) drop-shadow(0 1px 4px rgba(0,0,0,0.3));
 }
 
 .result p {
@@ -752,6 +756,7 @@ footer {
   width: 100%;
   text-align: center;
   margin-top: auto;
+  padding: 12px 0 4px;
 }
 
 .cup-heroes-title {
@@ -760,7 +765,7 @@ footer {
   letter-spacing: 0.5px;
   text-transform: uppercase;
   opacity: 0.45;
-  margin-bottom: 6px;
+  margin-bottom: 12px;
 }
 
 .hero-slots {
@@ -827,26 +832,9 @@ footer {
   background: var(--main-light);
 }
 
-.cup-heroes-info-btn {
-  background: transparent;
-  color: var(--text-colour);
-  border: none;
-  padding: 4px 0;
-  font-size: 11px;
-  font-family: inherit;
-  cursor: pointer;
-  opacity: 0.4;
-  width: 100%;
-  margin-top: 4px;
-}
-
-.cup-heroes-info-btn:hover {
-  opacity: 0.75;
-  text-decoration: underline;
-}
 
 .cup-heroes-info-icon {
-  display: none;
+  display: inline-flex;
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 50%;
@@ -864,7 +852,7 @@ footer {
   justify-content: center;
   opacity: 0.65;
   vertical-align: middle;
-  margin-left: 5px;
+  margin-left: 10px;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1193,9 +1181,44 @@ footer {
 }
 
 .hero-card--locked {
-  opacity: 0.35;
+  opacity: 0.45;
   pointer-events: none;
   filter: grayscale(80%);
+}
+
+.hero-card-lock {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 18px;
+  height: 15px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 2px;
+}
+
+.hero-card-lock::before {
+  content: '';
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 11px;
+  height: 10px;
+  border: 2.5px solid rgba(255, 255, 255, 0.9);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+}
+
+.hero-card-lock::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -40%);
+  width: 4px;
+  height: 5px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 1px;
 }
 
 /* Photo area */
@@ -1519,6 +1542,11 @@ body[data-theme="sky"] {
   background-color: #000322;
 }
 
+[data-theme="sky"] .info-icon-box,
+[data-theme="sky"] .round-select {
+  border: none;
+}
+
 /* ═══════════════════════════════════════════════════════════
    IN-PRODUCTION SKIN MODAL
 ═══════════════════════════════════════════════════════════ */
@@ -1714,15 +1742,6 @@ body[data-theme="sky"] {
   .cup-heroes-grid {
     grid-template-columns: repeat(2, 1fr);
     padding-bottom: 16px;
-  }
-
-  /* "How does this work?" text → compact icon in title */
-  .cup-heroes-info-btn {
-    display: none;
-  }
-
-  .cup-heroes-info-icon {
-    display: inline-flex;
   }
 
   /* Save & Close moves to sticky footer */

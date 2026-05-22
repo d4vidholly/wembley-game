@@ -9,6 +9,8 @@ const HEROES_CSV_URL       = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS
 const PEN_KICK_DURATION_MS = 2000; // ms per kick
 const BADGES_PATH          = 'badges/';
 const HEROES_PATH          = 'heroes/';
+const CACHE_TTL_MS         = 15 * 60 * 1000; // re-fetch sheets after 15 minutes
+const POSITION_COLORS      = { GK: '#B8413B', DEF: '#AAA54A', MID: '#31813C', STR: '#BBBCB9' };
 
 // ────────────────────────────────────────────────────────────
 // STATIC GAME DATA
@@ -60,21 +62,25 @@ let selectedHeroesAway = [];
  *   stadium   – Display string (e.g. "Emirates Stadium")
  *   gate      – Gate revenue as a plain number, no $ (e.g. 12000)
  *   location  – Display string (e.g. "North London")
+ *   available – Y to include in dropdowns, N to hide (data still loaded)
  */
 async function fetchCSV(url, cacheKey) {
+  const tsKey  = `${cacheKey}__ts`;
   const cached = sessionStorage.getItem(cacheKey);
-  if (cached) return cached;
+  const age    = Date.now() - Number(sessionStorage.getItem(tsKey));
+  if (cached && age < CACHE_TTL_MS) return cached;
   const response = await fetch(url);
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   const text = await response.text();
   sessionStorage.setItem(cacheKey, text);
+  sessionStorage.setItem(tsKey, Date.now());
   return text;
 }
 
 async function fetchTeams() {
   setLoadingState(true);
   try {
-    const csv = await fetchCSV(SHEET_CSV_URL, 'wembley-teams');
+    const csv = await fetchCSV(SHEET_CSV_URL, 'wembley-teams-v2');
     teams = parseTeamsCSV(csv);
     populateTeamSelects();
     initUI();
@@ -108,15 +114,17 @@ function parseTeamsCSV(csv) {
     const color1    = col('color1') >= 0 ? v[col('color1')] : '';
     const color2    = col('color2') >= 0 ? v[col('color2')] : '';
 
+    const availCol = col('available');
     result[name] = {
-      badge:    BADGES_PATH + v[col('badge')],
-      division: v[col('division')],
-      stars:    '★'.repeat(starCount),
-      stadium:  v[col('stadium')],
-      gate:     `$${parseInt(gate.replace(/[^0-9]/g, '')) || 0}`,
-      location: v[col('location')],
-      color1:   color1 || null,
-      color2:   color2 || null
+      badge:     BADGES_PATH + v[col('badge')],
+      division:  v[col('division')],
+      stars:     '★'.repeat(starCount),
+      stadium:   v[col('stadium')],
+      gate:      parseInt(gate.replace(/[^0-9]/g, '')) || 0,
+      location:  v[col('location')],
+      color1:    color1 || null,
+      color2:    color2 || null,
+      available: availCol < 0 || v[availCol] !== 'N'
     };
   }
 
@@ -150,7 +158,7 @@ function parseCSVLine(line) {
 }
 
 function populateTeamSelects() {
-  const sortedNames = Object.keys(teams).sort();
+  const sortedNames = Object.keys(teams).filter(n => teams[n].available).sort();
   const optionsHTML = sortedNames
     .map(name => `<option value="${name}">${name}</option>`)
     .join('\n');
@@ -174,7 +182,7 @@ function setLoadingState(loading) {
 
 async function fetchHeroes() {
   try {
-    const csv = await fetchCSV(HEROES_CSV_URL, 'wembley-heroes');
+    const csv = await fetchCSV(HEROES_CSV_URL, 'wembley-heroes-v2');
     heroes = parseHeroesCSV(csv);
   } catch (err) {
     console.error('Failed to load heroes data:', err);
@@ -186,9 +194,9 @@ function parseHeroesCSV(csv) {
   const result = {};
   for (let i = 1; i < lines.length; i++) {
     const values = parseCSVLine(lines[i]);
-    if (values.length < 8) continue;
+    if (values.length < 6) continue;
     const vals = values.map(v => v.trim());
-    const [id, position, name, price, primaryChance, secondaryChance, primaryDesc, secondaryDesc] = vals;
+    const [available, id, position, name, price, primaryChance, primaryDesc, primaryText1, primaryText2, secondaryChance, secondaryDesc, secondaryText1] = vals;
     if (!id) continue;
     result[id] = {
       id,
@@ -198,8 +206,11 @@ function parseHeroesCSV(csv) {
       primary_chance:       parseFloat(primaryChance) || 0,
       secondary_chance:     parseFloat(secondaryChance) || 0,
       primary_description:  primaryDesc,
+      primary_text1:        primaryText1 || '',
+      primary_text2:        primaryText2 || '',
       secondary_description: secondaryDesc,
-      available:            vals[8] !== 'N'
+      secondary_text1:      secondaryText1 || '',
+      available:            available !== 'N'
     };
   }
   return result;
@@ -259,12 +270,12 @@ function updateStadium() {
   const stadiumText   = document.getElementById('stadiumTextHome');
   const prizeMoney    = document.getElementById('prizeMoney');
 
-  if (selectedRound === 'Semi Final' || selectedRound === 'Final') {
+  if (isWembley(selectedRound)) {
     stadiumText.textContent = 'Wembley';
     prizeMoney.innerText    = roundData[selectedRound].revenue;
   } else if (teams[selectedTeam]) {
     stadiumText.textContent = teams[selectedTeam].stadium;
-    prizeMoney.innerText    = teams[selectedTeam].gate;
+    prizeMoney.innerText    = `$${teams[selectedTeam].gate.toLocaleString()}`;
   } else {
     stadiumText.textContent = '';
     prizeMoney.innerText    = '';
@@ -320,8 +331,12 @@ function parseStars(starString) {
   return starString.replace(/[^★]/g, '').length;
 }
 
+function isWembley(round) {
+  return round === 'Semi Final' || round === 'Final';
+}
+
 function applyHeroBonuses(homeGoals, awayGoals, homeName, awayName, round) {
-  const isWembley = (round === 'Semi Final' || round === 'Final');
+  const wembley = isWembley(round);
   const homeStars = parseStars(teams[homeName].stars);
   const awayStars = parseStars(teams[awayName].stars);
   const homeHeroEvents = [];
@@ -335,22 +350,21 @@ function applyHeroBonuses(homeGoals, awayGoals, homeName, awayName, round) {
     const event = { id: heroId, name: hero.name, position: hero.position, primaryFired: false, secondaryFired: false, tooltip: `${hero.name} didn't affect the match` };
 
     if (hero.position === 'GK' || hero.position === 'DEF') {
-      const wembleyBoost = isWembley && hero.secondary_chance > hero.primary_chance;
+      const ownStars = isHome ? homeStars : awayStars;
+      const oppStars = isHome ? awayStars : homeStars;
+      const wembleyCondition = heroId === 'beasant' ? oppStars > ownStars : true;
+      const wembleyBoost = wembley && wembleyCondition && hero.secondary_chance > hero.primary_chance;
       const chance = wembleyBoost ? hero.secondary_chance : hero.primary_chance;
       if (Math.random() * 100 < chance) {
         if (isHome)  awayGoals = Math.max(0, awayGoals - 1);
         else         homeGoals = Math.max(0, homeGoals - 1);
         event.primaryFired = true;
-        const gkPhrases    = ['made a great save', 'kept the ball out', 'pulled off a stunning stop', 'saved the penalty'];
-        const defPhrases   = ['made a last-ditch tackle', 'made a vital block', 'cleared off the line', 'won the crucial challenge'];
-        const wembleyExtra = hero.position === 'GK' ? 'pulled off a Wembley save' : 'made a Wembley-worthy block';
-        const pick = arr => arr[Math.floor(Math.random() * arr.length)];
         if (wembleyBoost) {
           event.secondaryFired = true;
-          event.tooltip = `${hero.name} ${wembleyExtra} — denied ${oppName} at Wembley`;
+          event.tooltip = hero.secondary_text1 || `${hero.name} denied ${oppName} at Wembley`;
         } else {
-          const phrase = hero.position === 'GK' ? pick(gkPhrases) : pick(defPhrases);
-          event.tooltip = `${hero.name} ${phrase} — denied ${oppName}`;
+          const text = Math.random() < 0.5 ? hero.primary_text1 : hero.primary_text2;
+          event.tooltip = text || `${hero.name} denied ${oppName}`;
         }
       }
 
@@ -358,18 +372,33 @@ function applyHeroBonuses(homeGoals, awayGoals, homeName, awayName, round) {
       if (Math.random() * 100 < hero.primary_chance) {
         if (isHome) homeGoals++; else awayGoals++;
         event.primaryFired = true;
-        event.tooltip = `Added a goal for ${ownName}`;
+        const midText = Math.random() < 0.5 ? hero.primary_text1 : hero.primary_text2;
+        event.tooltip = midText || `${hero.name} added a goal for ${ownName}`;
+        if (heroId === 'gerrard' && hero.secondary_chance > 0) {
+          const ownGoals = isHome ? homeGoals : awayGoals;
+          const oppGoals = isHome ? awayGoals : homeGoals;
+          if (oppGoals - ownGoals === 1 && Math.random() * 100 < hero.secondary_chance) {
+            if (isHome) homeGoals++; else awayGoals++;
+            event.secondaryFired = true;
+            event.tooltip = hero.secondary_text1 || `${hero.name} scored again!`;
+          }
+        }
       }
 
     } else if (hero.position === 'STR') {
-      const wembleyBoost = isWembley && hero.secondary_chance > hero.primary_chance;
+      const wembleyBoost = wembley && hero.secondary_chance > hero.primary_chance;
       const primaryChance = wembleyBoost ? hero.secondary_chance : hero.primary_chance;
 
       if (Math.random() * 100 < primaryChance) {
         if (isHome) homeGoals++; else awayGoals++;
         event.primaryFired = true;
-        event.tooltip = `Scored for ${ownName}`;
-        if (wembleyBoost) { event.secondaryFired = true; event.tooltip = `Scored for ${ownName} — Wembley boost`; }
+        if (wembleyBoost) {
+          event.secondaryFired = true;
+          event.tooltip = hero.secondary_text1 || `${hero.name} scored at Wembley`;
+        } else {
+          const strText = Math.random() < 0.5 ? hero.primary_text1 : hero.primary_text2;
+          event.tooltip = strText || `${hero.name} scored for ${ownName}`;
+        }
 
         // Haaland only: secondary — score again vs lower-division opposition
         if (heroId === 'haaland') {
@@ -378,7 +407,7 @@ function applyHeroBonuses(homeGoals, awayGoals, homeName, awayName, round) {
           if (oppStars < ownStars && Math.random() * 100 < hero.secondary_chance) {
             if (isHome) homeGoals++; else awayGoals++;
             event.secondaryFired = true;
-            event.tooltip = `Scored twice for ${ownName}!`;
+            event.tooltip = hero.secondary_text1 || `${hero.name} scored twice!`;
           }
         }
       }
@@ -409,9 +438,9 @@ function parseMoney(moneyString) {
 }
 
 function calculatePrizeMoney(homeTeam, winner, round) {
-  const totalRevenue = (round === 'Semi Final' || round === 'Final')
+  const totalRevenue = isWembley(round)
     ? parseMoney(roundData[round].revenue)
-    : parseMoney(teams[homeTeam].gate);
+    : teams[homeTeam].gate;
 
   let homeShare = 0;
   let awayShare = 0;
@@ -464,7 +493,6 @@ function simulateMatch(homeName, awayName, round, replay = false) {
   renderHeroReport(heroResult);
 
   // — Determine result —
-  const knockoutRounds = ['Semi Final', 'Final'];
   let winnerKey, resultText;
   let isPenaltyShootout = false;
   let penaltyWinner     = null;
@@ -482,7 +510,7 @@ function simulateMatch(homeName, awayName, round, replay = false) {
       : `${awayName} progress to the next round`;
 
   } else {
-    if (knockoutRounds.includes(round) || replay) {
+    if (isWembley(round) || replay) {
       penaltyWinner     = Math.random() < 0.5 ? homeName : awayName;
       winnerKey         = penaltyWinner === homeName ? 'home' : 'away';
       isPenaltyShootout = true;
@@ -509,7 +537,7 @@ function simulateMatch(homeName, awayName, round, replay = false) {
   document.querySelector('#prizeAway p').textContent = `$${awayBonusAmount.toLocaleString()}`;
 
   // — Totals —
-  updateTotaliser();
+  updateTotaliser(prize.home, prize.away, homeBonusAmount, awayBonusAmount);
 
   // — Penalty shootout takes over modal display —
   if (isPenaltyShootout) {
@@ -546,17 +574,9 @@ function showReplayButton(originalHome, originalAway, round) {
   });
 }
 
-function updateTotaliser() {
-  const getAmount = selector => {
-    const text = document.querySelector(selector).textContent.replace(/[^\d]/g, '');
-    return Number(text) || 0;
-  };
-
-  const homeTotal = getAmount('#ticketHome p') + getAmount('#prizeHome p');
-  const awayTotal = getAmount('#ticketAway p') + getAmount('#prizeAway p');
-
-  document.querySelector('#totalHome p').textContent = `$${homeTotal.toLocaleString()}`;
-  document.querySelector('#totalAway p').textContent = `$${awayTotal.toLocaleString()}`;
+function updateTotaliser(homeTicket, awayTicket, homeBonus, awayBonus) {
+  document.querySelector('#totalHome p').textContent = `$${(homeTicket + homeBonus).toLocaleString()}`;
+  document.querySelector('#totalAway p').textContent = `$${(awayTicket + awayBonus).toLocaleString()}`;
 }
 
 // ────────────────────────────────────────────────────────────
@@ -715,12 +735,10 @@ function openMatchInfoModal() {
   const round    = document.getElementById('roundSelect').value;
   const homeName = document.getElementById('teamSelectHome').value;
   const data     = roundData[round] || {};
-  const isWembley = (round === 'Semi Final' || round === 'Final');
-
   document.getElementById('matchInfoRound').textContent   = round || '—';
   document.getElementById('matchInfoKickoff').textContent = data.kickoff || '—';
-  document.getElementById('matchInfoStadium').textContent = isWembley ? 'Wembley' : (teams[homeName]?.stadium || '—');
-  document.getElementById('matchInfoPrize').textContent   = isWembley ? (data.revenue || '—') : (teams[homeName]?.gate || '—');
+  document.getElementById('matchInfoStadium').textContent = isWembley(round) ? 'Wembley' : (teams[homeName]?.stadium || '—');
+  document.getElementById('matchInfoPrize').textContent   = isWembley(round) ? (data.revenue || '—') : (teams[homeName] ? `$${teams[homeName].gate.toLocaleString()}` : '—');
   document.getElementById('matchInfoDraw').textContent    = data.ifDraw || '—';
 
   document.getElementById('matchInfoModal').classList.remove('hidden');
@@ -735,7 +753,7 @@ function renderHeroReport(heroResult) {
   const hasHeroes = heroResult.homeHeroEvents.length > 0 || heroResult.awayHeroEvents.length > 0;
   if (!hasHeroes) { container.style.display = 'none'; container.innerHTML = ''; return; }
 
-  const posColors = { GK: '#B8413B', DEF: '#AAA54A', MID: '#31813C', STR: '#BBBCB9' };
+  const posColors = POSITION_COLORS;
 
   function buildSlots(events) {
     const slots = [...events];
@@ -820,7 +838,6 @@ function openCupHeroesModal(side, filter = 'All') {
 function renderHeroCards(side, filter) {
   const grid = document.getElementById('cupHeroesGrid');
   const selected = side === 'home' ? selectedHeroesHome : selectedHeroesAway;
-  const positionColors = { GK: '#B8413B', DEF: '#AAA54A', MID: '#31813C', STR: '#BBBCB9' };
   const filtered = Object.values(heroes).filter(h => filter === 'All' || h.position === filter);
 
   if (filtered.length === 0) {
@@ -832,13 +849,13 @@ function renderHeroCards(side, filter) {
 
   grid.innerHTML = filtered.map(hero => {
     const isSelected    = selected.includes(hero.id);
-    const isUnavailable = hero.available === false;
+    const isUnavailable = !hero.available;
     const takenByOther  = !isSelected && otherSelected.includes(hero.id);
     const posConflict   = selected.some(id => heroes[id]?.position === hero.position && id !== hero.id);
     const atMax         = selected.length >= 3 && !isSelected && !posConflict;
     const isDisabled    = !isUnavailable && !isSelected && (atMax || takenByOther);
     const initials      = hero.name.slice(0, 2).toUpperCase();
-    const bgColor       = positionColors[hero.position] || '#333';
+    const bgColor       = POSITION_COLORS[hero.position] || '#333';
     const stateClass    = isUnavailable ? ' hero-card--locked' : (isSelected ? ' hero-card--selected' : (isDisabled ? ' hero-card--disabled' : ''));
 
     return `<div class="hero-card${stateClass}" style="--pos-color: ${bgColor}" onclick="toggleHero('${side}', '${hero.id}')">
@@ -846,6 +863,7 @@ function renderHeroCards(side, filter) {
         <img src="${HEROES_PATH}${hero.id}.png" class="hero-card-photo" alt="" onerror="this.src='${HEROES_PATH}${hero.id}.jpg';this.onerror=function(){this.style.display='none';this.nextElementSibling.style.display='block'}">
         <span class="hero-card-initials">${initials}</span>
         ${isSelected ? '<div class="hero-card-check">✓</div>' : ''}
+        ${isUnavailable ? '<div class="hero-card-lock"></div>' : ''}
       </div>
       <div class="hero-card-name">${hero.name}</div>
       <div class="hero-card-meta">
@@ -853,14 +871,13 @@ function renderHeroCards(side, filter) {
         <span class="hero-card-meta-price">£${hero.price.toLocaleString()}</span>
       </div>
       <div class="hero-card-bonus">${hero.primary_description}</div>
-      <div class="hero-card-bonus hero-card-bonus--sec">⚡ ${hero.secondary_description}</div>
     </div>`;
   }).join('');
 }
 
 function toggleHero(side, heroId) {
   const hero = heroes[heroId];
-  if (!hero || hero.available === false) return;
+  if (!hero || !hero.available) return;
 
   const selected      = side === 'home' ? selectedHeroesHome : selectedHeroesAway;
   const otherSelected = side === 'home' ? selectedHeroesAway : selectedHeroesHome;
@@ -898,16 +915,14 @@ function updateHeroSummary(side) {
   const slotsEl   = document.getElementById(side === 'home' ? 'heroSlotsHome' : 'heroSlotsAway');
   if (!slotsEl) return;
 
-  const positionColors = { GK: '#B8413B', DEF: '#AAA54A', MID: '#31813C', STR: '#BBBCB9' };
-
   ['GK', 'DEF', 'MID', 'STR'].forEach(pos => {
     const slot   = slotsEl.querySelector(`[data-position="${pos}"]`);
     if (!slot) return;
     const heroId = selected.find(id => heroes[id]?.position === pos);
     if (heroId) {
       const hero = heroes[heroId];
-      slot.style.background = positionColors[pos];
-      slot.style.boxShadow = 'inset 0 0 0 4px ' + positionColors[pos];
+      slot.style.background = POSITION_COLORS[pos];
+      slot.style.boxShadow = 'inset 0 0 0 4px ' + POSITION_COLORS[pos];
       slot.innerHTML = `<img src="${HEROES_PATH}${hero.id}.png" class="hero-slot-photo" alt="${hero.name}" onerror="this.src='${HEROES_PATH}${hero.id}.jpg';this.onerror=function(){this.style.display='none';this.nextElementSibling.style.display='block'}"><span class="hero-slot-initials" style="display:none">${hero.name.slice(0, 2).toUpperCase()}</span>`;
     } else {
       slot.style.background = '';
