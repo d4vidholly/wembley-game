@@ -322,24 +322,24 @@ header {
    CLASH ANIMATION (desktop only)
 ═══════════════════════════════════════════════════════════ */
 @keyframes clash-home {
-  0%   { transform: translateX(0)    scale(1); }
-  80%  { transform: translateX(113%) scale(1.04); }
-  100% { transform: translateX(108%) scale(1); }
+  0%   { transform: translateX(0) scale(1); }
+  80%  { transform: translateX(calc(var(--clash-x) + 8px)) scale(1.04); }
+  100% { transform: translateX(var(--clash-x)) scale(1); }
 }
 
 @keyframes clash-away {
-  0%   { transform: translateX(0)     scale(1); }
-  80%  { transform: translateX(-113%) scale(1.04); }
-  100% { transform: translateX(-108%) scale(1); }
+  0%   { transform: translateX(0) scale(1); }
+  80%  { transform: translateX(calc(var(--clash-x) - 8px)) scale(1.04); }
+  100% { transform: translateX(var(--clash-x)) scale(1); }
 }
 
 .teams--clash .team-panel:first-child {
-  animation: clash-home 0.5s ease-in forwards;
+  animation: clash-home 0.75s ease-in forwards;
   z-index: 10;
 }
 
 .teams--clash .team-panel:last-child {
-  animation: clash-away 0.5s ease-in forwards;
+  animation: clash-away 0.75s ease-in forwards;
   z-index: 10;
 }
 

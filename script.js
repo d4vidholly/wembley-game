@@ -962,12 +962,22 @@ window.addEventListener('load', function () {
     if (!(homeName && awayName && round)) return;
 
     if (window.innerWidth > 767) {
-      const teamsEl = document.querySelector('.teams');
+      const teamsEl  = document.querySelector('.teams');
+      const homePanel = teamsEl.querySelector('.team-panel:first-child');
+      const awayPanel = teamsEl.querySelector('.team-panel:last-child');
+      const teamsRect = teamsEl.getBoundingClientRect();
+      const homeRect  = homePanel.getBoundingClientRect();
+      const awayRect  = awayPanel.getBoundingClientRect();
+      const center    = teamsRect.left + teamsRect.width / 2;
+      homePanel.style.setProperty('--clash-x', `${Math.round(center - homeRect.right)}px`);
+      awayPanel.style.setProperty('--clash-x', `${Math.round(center - awayRect.left)}px`);
       teamsEl.classList.add('teams--clash');
       setTimeout(() => {
         teamsEl.classList.remove('teams--clash');
+        homePanel.style.removeProperty('--clash-x');
+        awayPanel.style.removeProperty('--clash-x');
         simulateMatch(homeName, awayName, round, false);
-      }, 650);
+      }, 1000);
     } else {
       simulateMatch(homeName, awayName, round, false);
     }
