@@ -846,7 +846,13 @@ function openCupHeroesModal(side, filter = 'All') {
 function renderHeroCards(side, filter) {
   const grid = document.getElementById('cupHeroesGrid');
   const selected = side === 'home' ? selectedHeroesHome : selectedHeroesAway;
-  const filtered = Object.values(heroes).filter(h => filter === 'All' || h.position === filter);
+  const posOrder = { GK: 0, DEF: 1, MID: 2, STR: 3 };
+  const filtered = Object.values(heroes)
+    .filter(h => filter === 'All' || h.position === filter)
+    .sort((a, b) => {
+      if (a.available !== b.available) return a.available ? -1 : 1;
+      return (posOrder[a.position] ?? 99) - (posOrder[b.position] ?? 99);
+    });
 
   if (filtered.length === 0) {
     grid.innerHTML = '<p class="no-heroes">No heroes available.</p>';
