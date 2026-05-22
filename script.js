@@ -959,7 +959,16 @@ window.addEventListener('load', function () {
     const homeName = document.getElementById('teamSelectHome').value;
     const awayName = document.getElementById('teamSelectAway').value;
     const round    = document.getElementById('roundSelect').value;
-    if (homeName && awayName && round) {
+    if (!(homeName && awayName && round)) return;
+
+    if (window.innerWidth > 767) {
+      const teamsEl = document.querySelector('.teams');
+      teamsEl.classList.add('teams--clash');
+      setTimeout(() => {
+        teamsEl.classList.remove('teams--clash');
+        simulateMatch(homeName, awayName, round, false);
+      }, 650);
+    } else {
       simulateMatch(homeName, awayName, round, false);
     }
   });
