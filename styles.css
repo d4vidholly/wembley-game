@@ -228,11 +228,6 @@ header {
   border: none;
 }
 
-#teamSelectHome option {
-  height: 30px;
-  overflow-y: auto;
-  max-height: 200px;
-}
 
 /* ═══════════════════════════════════════════════════════════
    MATCH DETAILS — centre column
@@ -372,9 +367,6 @@ header {
 /* ═══════════════════════════════════════════════════════════
    FOOTER
 ═══════════════════════════════════════════════════════════ */
-footer {
-  bottom: 0;
-}
 
 .banner {
   height: 50px;
@@ -466,6 +458,11 @@ footer {
 
 #matchEarningsSection {
   text-align: center;
+}
+
+#totalHome p,
+#totalAway p {
+  font-weight: bold;
 }
 
 /* Score row — grid so the score stays pinned to centre regardless of name length */
@@ -846,22 +843,6 @@ footer {
   object-position: center;
 }
 
-.cup-heroes-btn {
-  background: var(--main-dark);
-  color: var(--text-colour);
-  border: 2px solid var(--border);
-  border-radius: 2px;
-  padding: 8px 16px;
-  font-size: 13px;
-  font-weight: bold;
-  cursor: pointer;
-  width: 100%;
-}
-
-.cup-heroes-btn:hover {
-  background: var(--main-light);
-}
-
 
 .cup-heroes-slots-toggle {
   display: none;
@@ -897,6 +878,7 @@ footer {
   max-width: 90%;
   max-height: 85vh;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 28px;
   text-align: left;
   min-height: 420px;
@@ -1078,6 +1060,7 @@ footer {
   width: 900px;
   max-height: 85vh;
   overflow-y: auto;
+  overscroll-behavior: contain;
   background: linear-gradient(45deg, var(--main-dark), var(--main-light));
   padding: 0 30px 30px;
   border-radius: 4px;
@@ -1346,10 +1329,6 @@ footer {
   background: rgba(255, 255, 255, 0.04);
 }
 
-.hero-card-bonus--sec {
-  opacity: 0.65;
-  font-size: 9.5px;
-}
 
 /* ═══════════════════════════════════════════════════════════
    PENALTY SHOOTOUT

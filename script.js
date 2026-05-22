@@ -25,14 +25,14 @@ const roundData = {
 
 const goalChancesByStars = {
   home: {
-    1: [{ goals: 0, weight: 33.3 }, { goals: 1, weight: 16.7 }, { goals: 2, weight: 16.7 }, { goals: 3, weight: 0    }, { goals: 4, weight: 16.7 }, { goals: 5, weight: 16.7 }],
-    2: [{ goals: 0, weight: 16.7 }, { goals: 1, weight: 16.7 }, { goals: 2, weight: 33.3 }, { goals: 3, weight: 16.7 }, { goals: 4, weight: 16.7 }, { goals: 5, weight: 0    }],
-    3: [{ goals: 0, weight: 16.7 }, { goals: 1, weight: 16.7 }, { goals: 2, weight: 16.7 }, { goals: 3, weight: 16.7 }, { goals: 4, weight: 33.3 }, { goals: 5, weight: 0    }]
+    1: [{ goals: 0, weight: 33.3 }, { goals: 1, weight: 16.7 }, { goals: 2, weight: 16.7 }, { goals: 4, weight: 16.7 }, { goals: 5, weight: 16.7 }],
+    2: [{ goals: 0, weight: 16.7 }, { goals: 1, weight: 16.7 }, { goals: 2, weight: 33.3 }, { goals: 3, weight: 16.7 }, { goals: 4, weight: 16.7 }],
+    3: [{ goals: 0, weight: 16.7 }, { goals: 1, weight: 16.7 }, { goals: 2, weight: 16.7 }, { goals: 3, weight: 16.7 }, { goals: 4, weight: 33.3 }]
   },
   away: {
-    1: [{ goals: 0, weight: 33.3 }, { goals: 1, weight: 16.7 }, { goals: 2, weight: 16.7 }, { goals: 3, weight: 0    }, { goals: 4, weight: 16.7 }, { goals: 5, weight: 16.7 }],
-    2: [{ goals: 0, weight: 16.7 }, { goals: 1, weight: 33.3 }, { goals: 2, weight: 16.7 }, { goals: 3, weight: 0    }, { goals: 4, weight: 16.7 }, { goals: 5, weight: 0    }],
-    3: [{ goals: 0, weight: 16.7 }, { goals: 1, weight: 16.7 }, { goals: 2, weight: 16.7 }, { goals: 3, weight: 33.3 }, { goals: 4, weight: 16.7 }, { goals: 5, weight: 0    }]
+    1: [{ goals: 0, weight: 33.3 }, { goals: 1, weight: 16.7 }, { goals: 2, weight: 16.7 }, { goals: 4, weight: 16.7 }, { goals: 5, weight: 16.7 }],
+    2: [{ goals: 0, weight: 16.7 }, { goals: 1, weight: 33.3 }, { goals: 2, weight: 16.7 }, { goals: 4, weight: 16.7 }],
+    3: [{ goals: 0, weight: 16.7 }, { goals: 1, weight: 16.7 }, { goals: 2, weight: 16.7 }, { goals: 3, weight: 33.3 }, { goals: 4, weight: 16.7 }]
   }
 };
 
@@ -192,27 +192,35 @@ async function fetchHeroes() {
 function parseHeroesCSV(csv) {
   const lines = csv.trim().split('\n');
   const result = {};
+
+  const headers = parseCSVLine(lines[0]).map(h => h.trim().toLowerCase());
+  const col = name => headers.indexOf(name);
+
   for (let i = 1; i < lines.length; i++) {
-    const values = parseCSVLine(lines[i]);
-    if (values.length < 6) continue;
-    const vals = values.map(v => v.trim());
-    const [available, id, position, name, price, primaryChance, primaryDesc, primaryText1, primaryText2, secondaryChance, secondaryDesc, secondaryText1] = vals;
+    const raw = parseCSVLine(lines[i]);
+    if (raw.length < 6) continue;
+    const v = raw.map(s => s.trim());
+
+    const id = v[col('id')];
     if (!id) continue;
+
+    const availCol = col('available');
     result[id] = {
       id,
-      position,
-      name,
-      price:                parseInt(price) || 0,
-      primary_chance:       parseFloat(primaryChance) || 0,
-      secondary_chance:     parseFloat(secondaryChance) || 0,
-      primary_description:  primaryDesc,
-      primary_text1:        primaryText1 || '',
-      primary_text2:        primaryText2 || '',
-      secondary_description: secondaryDesc,
-      secondary_text1:      secondaryText1 || '',
-      available:            available !== 'N'
+      position:              v[col('position')] || '',
+      name:                  v[col('name')] || '',
+      price:                 parseInt(v[col('price')]) || 0,
+      primary_chance:        parseFloat(v[col('primary_chance')]) || 0,
+      secondary_chance:      parseFloat(v[col('secondary_chance')]) || 0,
+      primary_description:   v[col('primary_description')] || '',
+      primary_text1:         col('primary_text1')  >= 0 ? v[col('primary_text1')]  : '',
+      primary_text2:         col('primary_text2')  >= 0 ? v[col('primary_text2')]  : '',
+      secondary_description: v[col('secondary_description')] || '',
+      secondary_text1:       col('secondary_text1') >= 0 ? v[col('secondary_text1')] : '',
+      available:             availCol < 0 || v[availCol] !== 'N'
     };
   }
+
   return result;
 }
 
@@ -275,7 +283,7 @@ function updateStadium() {
     prizeMoney.innerText    = roundData[selectedRound].revenue;
   } else if (teams[selectedTeam]) {
     stadiumText.textContent = teams[selectedTeam].stadium;
-    prizeMoney.innerText    = `$${teams[selectedTeam].gate.toLocaleString()}`;
+    prizeMoney.innerText    = formatMoney(teams[selectedTeam].gate);
   } else {
     stadiumText.textContent = '';
     prizeMoney.innerText    = '';
@@ -437,6 +445,12 @@ function parseMoney(moneyString) {
   return parseInt(String(moneyString).replace(/[^0-9]/g, '')) || 0;
 }
 
+const CURRENCY = '£';
+
+function formatMoney(amount) {
+  return `${CURRENCY}${amount.toLocaleString()}`;
+}
+
 function calculatePrizeMoney(homeTeam, winner, round) {
   const totalRevenue = isWembley(round)
     ? parseMoney(roundData[round].revenue)
@@ -523,8 +537,8 @@ function simulateMatch(homeName, awayName, round, replay = false) {
 
   // — Gate revenue —
   const prize = calculatePrizeMoney(homeName, winnerKey, round);
-  document.querySelector('#ticketHome p').textContent = `$${prize.home.toLocaleString()}`;
-  document.querySelector('#ticketAway p').textContent = `$${prize.away.toLocaleString()}`;
+  document.querySelector('#ticketHome p').textContent = formatMoney(prize.home);
+  document.querySelector('#ticketAway p').textContent = formatMoney(prize.away);
 
   // — Round bonus (not awarded on a drawn QF before the replay) —
   let homeBonusAmount = 0;
@@ -533,8 +547,8 @@ function simulateMatch(homeName, awayName, round, replay = false) {
     homeBonusAmount = calculateRoundBonus(round, teams[homeName].stars);
     awayBonusAmount = calculateRoundBonus(round, teams[awayName].stars);
   }
-  document.querySelector('#prizeHome p').textContent = `$${homeBonusAmount.toLocaleString()}`;
-  document.querySelector('#prizeAway p').textContent = `$${awayBonusAmount.toLocaleString()}`;
+  document.querySelector('#prizeHome p').textContent = formatMoney(homeBonusAmount);
+  document.querySelector('#prizeAway p').textContent = formatMoney(awayBonusAmount);
 
   // — Totals —
   updateTotaliser(prize.home, prize.away, homeBonusAmount, awayBonusAmount);
@@ -575,8 +589,8 @@ function showReplayButton(originalHome, originalAway, round) {
 }
 
 function updateTotaliser(homeTicket, awayTicket, homeBonus, awayBonus) {
-  document.querySelector('#totalHome p').textContent = `$${(homeTicket + homeBonus).toLocaleString()}`;
-  document.querySelector('#totalAway p').textContent = `$${(awayTicket + awayBonus).toLocaleString()}`;
+  document.querySelector('#totalHome p').textContent = formatMoney(homeTicket + homeBonus);
+  document.querySelector('#totalAway p').textContent = formatMoney(awayTicket + awayBonus);
 }
 
 // ────────────────────────────────────────────────────────────
@@ -738,7 +752,7 @@ function openMatchInfoModal() {
   document.getElementById('matchInfoRound').textContent   = round || '—';
   document.getElementById('matchInfoKickoff').textContent = data.kickoff || '—';
   document.getElementById('matchInfoStadium').textContent = isWembley(round) ? 'Wembley' : (teams[homeName]?.stadium || '—');
-  document.getElementById('matchInfoPrize').textContent   = isWembley(round) ? (data.revenue || '—') : (teams[homeName] ? `$${teams[homeName].gate.toLocaleString()}` : '—');
+  document.getElementById('matchInfoPrize').textContent   = isWembley(round) ? (data.revenue || '—') : (teams[homeName] ? formatMoney(teams[homeName].gate) : '—');
   document.getElementById('matchInfoDraw').textContent    = data.ifDraw || '—';
 
   document.getElementById('matchInfoModal').classList.remove('hidden');
@@ -882,7 +896,7 @@ function renderHeroCards(side, filter) {
       <div class="hero-card-name">${hero.name}</div>
       <div class="hero-card-meta">
         <span class="hero-card-meta-pos">${hero.position}</span>
-        <span class="hero-card-meta-price">£${hero.price.toLocaleString()}</span>
+        <span class="hero-card-meta-price">${formatMoney(hero.price)}</span>
       </div>
       <div class="hero-card-bonus">${hero.primary_description}</div>
     </div>`;
