@@ -782,6 +782,14 @@ function renderHeroReport(heroResult) {
   </div>`;
 }
 
+function toggleHeroSlots(side) {
+  const slotsId = side === 'home' ? 'heroSlotsHome' : 'heroSlotsAway';
+  const slots = document.getElementById(slotsId);
+  const btn = slots.closest('.cup-heroes-trigger').querySelector('.cup-heroes-slots-toggle');
+  const isOpen = slots.classList.toggle('hero-slots--open');
+  btn.classList.toggle('cup-heroes-slots-toggle--open', isOpen);
+}
+
 function openCupHeroesInfoModal() {
   // Reset to panel 1
   document.querySelectorAll('.demo-panel').forEach((p, i) => {
