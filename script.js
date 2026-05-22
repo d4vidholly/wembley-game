@@ -823,7 +823,7 @@ function advanceDemoPanel() {
 
 function setSkin(skin) {
   document.body.dataset.theme = skin;
-  const labels = { classic: 'Classic', 'classic-dark': 'Classic Dark', sky: 'Sky' };
+  const labels = { classic: 'Classic', sky: 'Sky' };
   document.getElementById('skinToggle').textContent = (labels[skin] || skin) + ' ▾';
   document.querySelectorAll('.skin-option[data-skin]').forEach(btn => {
     btn.style.display = btn.dataset.skin === skin ? 'none' : '';

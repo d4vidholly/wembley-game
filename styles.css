@@ -1445,47 +1445,6 @@ body[data-theme="classic"] {
   background-color: #1A6437;             /* Background */
 }
 
-/* ═══════════════════════════════════════════════════════════
-   CLASSIC DARK SKIN
-   Dark version of Classic — same palette shifted to night values.
-   ── Palette ──────────────────────────────────────────────
-   Background  #061912   near-black stage
-   Card        #0B2E1C   dark forest green (gradient dark end)
-   Soft        #1A5234   medium-dark green (gradient light end)
-   Strong      #AAA54A   gold — borders, accent, selection
-   White       #ffffff   text
-═══════════════════════════════════════════════════════════ */
-[data-theme="classic-dark"] {
-  --main-dark:     #0B2E1C;
-  --main-light:    #1A5234;
-  --text-colour:   #FFFFFF;
-  --border:        #AAA54A;
-  --accent:        #AAA54A;
-  --accent-subtle: rgba(170, 165, 74, 0.2);
-  --accent-glow:   rgba(170, 165, 74, 0.5);
-  --accent-gold:   #AAA54A;
-  --overlay-bg:    rgba(3, 10, 6, 0.82);
-}
-
-body[data-theme="classic-dark"] {
-  background-image: repeating-linear-gradient(
-    -50deg,
-    #061912 0px,
-    #061912 135px,
-    #081614 135px,
-    #081614 270px
-  );
-  background-color: #061912;
-}
-
-[data-theme="classic-dark"] header {
-  background-color: #030D07;
-}
-
-[data-theme="classic-dark"] .team-select,
-[data-theme="classic-dark"] .round-dropdown {
-  background-color: #061912;
-}
 
 /* ═══════════════════════════════════════════════════════════
    SKY SKIN
