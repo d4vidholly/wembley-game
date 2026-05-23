@@ -11,6 +11,7 @@ const BADGES_PATH          = 'badges/';
 const HEROES_PATH          = 'heroes/';
 const CACHE_TTL_MS         = 15 * 60 * 1000; // re-fetch sheets after 15 minutes
 const POSITION_COLORS      = { GK: '#B8413B', DEF: '#AAA54A', MID: '#31813C', STR: '#BBBCB9' };
+const UNLOCK_HASH          = '72b636044cc9db44dd3832b5d99865b3404c250b22738320a19ac334da4eedeb';
 
 // ────────────────────────────────────────────────────────────
 // STATIC GAME DATA
@@ -455,6 +456,12 @@ function rollGoals(stars, side = 'home') {
   return 0;
 }
 
+async function hashPassword(input) {
+  const data = new TextEncoder().encode(input);
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 function parseMoney(moneyString) {
   return parseInt(String(moneyString).replace(/[^0-9]/g, '')) || 0;
 }
@@ -664,14 +671,19 @@ function computePenaltyResults() {
   const a4 = away.filter(Boolean).length;
 
   if (h4 === a4) {
-    // Level after 4: home goes first, away always opposite
+    // Level after 4: opposite kicks guarantee a result
     const h5 = Math.random() < 0.8;
     home.push(h5);
     away.push(!h5);
   } else {
-    // Not level: both kick independently
-    home.push(Math.random() < 0.8);
-    away.push(Math.random() < 0.8);
+    // Not level after 4: re-roll until the 5th kicks don't equalise the totals
+    let h5, a5;
+    do {
+      h5 = Math.random() < 0.8;
+      a5 = Math.random() < 0.8;
+    } while (h4 + (h5 ? 1 : 0) === a4 + (a5 ? 1 : 0));
+    home.push(h5);
+    away.push(a5);
   }
 
   return { home, away };
@@ -1078,8 +1090,8 @@ window.addEventListener('load', function () {
   const supporterPasswordInput = document.getElementById('supporterPassword');
   const supporterPasswordError = document.getElementById('supporterPasswordError');
 
-  function trySupporterUnlock() {
-    if (supporterPasswordInput.value === 'Wembley') {
+  async function trySupporterUnlock() {
+    if (await hashPassword(supporterPasswordInput.value) === UNLOCK_HASH) {
       document.getElementById('supporterModal').classList.add('hidden');
       supporterPasswordInput.value = '';
       supporterPasswordError.classList.add('hidden');
@@ -1100,8 +1112,8 @@ window.addEventListener('load', function () {
   const heroUnlockPasswordInput = document.getElementById('heroUnlockPassword');
   const heroUnlockError = document.getElementById('heroUnlockError');
 
-  function tryHeroUnlock() {
-    if (heroUnlockPasswordInput.value === 'Wembley') {
+  async function tryHeroUnlock() {
+    if (await hashPassword(heroUnlockPasswordInput.value) === UNLOCK_HASH) {
       heroesUnlocked = true;
       document.getElementById('heroUnlockModal').classList.add('hidden');
       const side = document.getElementById('cupHeroesModal').dataset.side;

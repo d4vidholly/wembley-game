@@ -374,10 +374,7 @@ header {
 }
 
 .kofi-footer-link {
-  position: absolute;
-  right: 16px;
-  font-size: 0.7rem;
-  color: var(--color-text-muted, #888);
+  margin-left: 12px;
   text-decoration: none;
   opacity: 0.6;
   transition: opacity 0.2s;
@@ -1982,6 +1979,34 @@ body[data-theme="retro"]::after {
 .supporter-modal-icon {
   font-size: 36px;
   margin-bottom: 12px;
+}
+
+.kofi-modal-icon {
+  height: 40px;
+  width: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.kofi-inline-logo {
+  height: 14px;
+  width: auto;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+}
+
+.kofi-badge-link {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.kofi-badge {
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
 }
 
 .supporter-kofi-btn {
