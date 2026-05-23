@@ -9,10 +9,10 @@
   --main-light:    #011338;
   --text-colour:   white;
   --border:        #05173a;
-  --accent:        #4a9eff;
-  --accent-subtle: rgba(74, 158, 255, 0.2);
-  --accent-glow:   rgba(74, 158, 255, 0.5);
-  --accent-gold:   #f59e0b;
+  --accent:        #e8c84a;
+  --accent-subtle: rgba(232, 200, 74, 0.2);
+  --accent-glow:   rgba(232, 200, 74, 0.5);
+  --accent-gold:   #e8c84a;
   --overlay-bg:    rgba(3, 2, 19, 0.3);
 }
 
@@ -43,7 +43,7 @@ label {
 header {
   position: relative;
   height: 80px;
-  background-color: #1A6437;
+  background-color: var(--main-dark);
   padding: 20px;
   color: var(--text-colour);
   text-align: center;
@@ -239,8 +239,6 @@ header {
   margin: 0 auto;
   max-width: 260px;
   width: 100%;
-  border: 2px solid var(--border);
-  border-radius: 4px;
 }
 
 .round-select select {
@@ -1400,19 +1398,19 @@ header {
    ── Palette ──────────────────────────────────────────────
    Background  #1A6437   page / stage colour
    Card        #0D9D54   panel & modal base (gradient dark end)
-   Soft        #69A982   gradient light end · borders · hovers
-   Strong      #AAA54A   accent · selection · gold
+   Soft        #3A6B4C   gradient light end · borders · hovers
+   Strong      #e8c84a   accent · selection · gold
    White       #ffffff   text
 ═══════════════════════════════════════════════════════════ */
 [data-theme="classic"] {
   --main-dark:     #0D9D54;              /* Card */
-  --main-light:    #69A982;              /* Soft */
+  --main-light:    #3A6B4C;              /* Soft — darkened for white text contrast */
   --text-colour:   white;
   --border:        #1A6437;              /* Background — dark outlines on Card panels */
-  --accent:        #AAA54A;              /* Strong */
-  --accent-subtle: rgba(170, 165, 74, 0.2);
-  --accent-glow:   rgba(170, 165, 74, 0.5);
-  --accent-gold:   #AAA54A;             /* Strong */
+  --accent:        #e8c84a;              /* Strong — warm gold */
+  --accent-subtle: rgba(232, 200, 74, 0.2);
+  --accent-glow:   rgba(232, 200, 74, 0.65);
+  --accent-gold:   #e8c84a;             /* Strong — warm gold */
   --overlay-bg:    rgba(8, 90, 45, 0.6);
 }
 
@@ -1427,11 +1425,16 @@ body[data-theme="classic"] {
   background-color: #1a6437;
 }
 
-/* Dropdowns recede against the card — use page background so they read clearly */
-[data-theme="classic"] .team-select,
-[data-theme="classic"] .round-dropdown {
-  background-color: #1A6437;             /* Background */
+/* Team dropdowns recede into the page background */
+[data-theme="classic"] .team-select {
+  background-color: #1A6437;
 }
+
+/* Round selector matches Play Match button */
+[data-theme="classic"] .round-dropdown {
+  background-color: var(--main-dark);
+}
+
 
 
 /* ═══════════════════════════════════════════════════════════
@@ -1518,13 +1521,16 @@ body[data-theme="sky"] {
   color: #ffffff;
 }
 
-[data-theme="sky"] .team-select,
-[data-theme="sky"] .round-dropdown {
+[data-theme="sky"] .team-select {
   background-color: #000322;
 }
 
-[data-theme="sky"] .info-icon-box,
-[data-theme="sky"] .round-select {
+/* Round selector matches Play Match button */
+[data-theme="sky"] .round-dropdown {
+  background-color: var(--accent);
+}
+
+[data-theme="sky"] .info-icon-box {
   border: none;
 }
 
@@ -1646,10 +1652,6 @@ body[data-theme="retro"]::after {
   font-size: 16px;
 }
 
-[data-theme="retro"] .round-select {
-  border: 2px solid #00ffff;
-  box-shadow: 3px 3px 0 #006666;
-}
 
 [data-theme="retro"] .info-icon-box {
   background: rgba(0, 255, 255, 0.08);
@@ -1978,7 +1980,7 @@ body[data-theme="retro"]::after {
 
 .supporter-modal-icon {
   font-size: 36px;
-  margin-bottom: 12px;
+  margin-bottom: 36px;
 }
 
 .kofi-modal-icon {
@@ -1998,7 +2000,7 @@ body[data-theme="retro"]::after {
 
 .kofi-badge-link {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 24px;
 }
 
 .kofi-badge {
@@ -2205,9 +2207,6 @@ body[data-theme="supporter"] {
   color: #ffffff;
 }
 
-[data-theme="supporter"] .round-select {
-  border: 1px solid rgba(201, 162, 39, 0.3);
-}
 
 [data-theme="supporter"] .info-icon-box {
   background: rgba(201, 162, 39, 0.05);
