@@ -160,7 +160,7 @@
     
 <footer>
   <div class="banner">
-    <img src="images/DHD-logo.png" class="dhd-logo" alt="DHD">
+    <img src="images/MoveClear.png" class="dhd-logo" alt="Move Clear">
   </div>
 </footer>
 
@@ -191,18 +191,18 @@
 
   <div id="penaltyCirclesSection" class="penalty-circles-section hidden">
     <div class="pen-column" id="penColHome">
-      <div class="pen-circle" id="pen-home-0"></div>
-      <div class="pen-circle" id="pen-home-1"></div>
-      <div class="pen-circle" id="pen-home-2"></div>
-      <div class="pen-circle" id="pen-home-3"></div>
-      <div class="pen-circle" id="pen-home-4"></div>
+      <div class="pen-row pen-row--home"><span class="pen-label" id="pen-label-home-0"></span><div class="pen-circle" id="pen-home-0"></div></div>
+      <div class="pen-row pen-row--home"><span class="pen-label" id="pen-label-home-1"></span><div class="pen-circle" id="pen-home-1"></div></div>
+      <div class="pen-row pen-row--home"><span class="pen-label" id="pen-label-home-2"></span><div class="pen-circle" id="pen-home-2"></div></div>
+      <div class="pen-row pen-row--home"><span class="pen-label" id="pen-label-home-3"></span><div class="pen-circle" id="pen-home-3"></div></div>
+      <div class="pen-row pen-row--home"><span class="pen-label" id="pen-label-home-4"></span><div class="pen-circle" id="pen-home-4"></div></div>
     </div>
     <div class="pen-column" id="penColAway">
-      <div class="pen-circle" id="pen-away-0"></div>
-      <div class="pen-circle" id="pen-away-1"></div>
-      <div class="pen-circle" id="pen-away-2"></div>
-      <div class="pen-circle" id="pen-away-3"></div>
-      <div class="pen-circle" id="pen-away-4"></div>
+      <div class="pen-row pen-row--away"><div class="pen-circle" id="pen-away-0"></div><span class="pen-label" id="pen-label-away-0"></span></div>
+      <div class="pen-row pen-row--away"><div class="pen-circle" id="pen-away-1"></div><span class="pen-label" id="pen-label-away-1"></span></div>
+      <div class="pen-row pen-row--away"><div class="pen-circle" id="pen-away-2"></div><span class="pen-label" id="pen-label-away-2"></span></div>
+      <div class="pen-row pen-row--away"><div class="pen-circle" id="pen-away-3"></div><span class="pen-label" id="pen-label-away-3"></span></div>
+      <div class="pen-row pen-row--away"><div class="pen-circle" id="pen-away-4"></div><span class="pen-label" id="pen-label-away-4"></span></div>
     </div>
   </div>
 
@@ -318,62 +318,74 @@
       </div>
       <ul class="demo-rules-list">
         <li>Cup Heroes are inspired by real-world legends who left their FA Cup legacy at Wembley</li>
-        <li>Select up to <strong>3 heroes</strong> per team — <strong>one per position</strong></li>
-        <li>Each hero has a unique bonus that fires automatically during the match simulation</li>
-        <li>The <strong>price</strong> on each card is the in-game purchase cost — pay it from your cash reserve before the match</li>
+        <li>Select up to <strong>3 heroes</strong> per team - <strong>one per position</strong></li>
+        <li>Each hero has a unique bonus that fires automatically during the match simulation. Unlike International Stars, Cup Heroes have an 80% chance to fire, so choose wisely!</li>
+        <li>The <strong>price</strong> on each card is the in-game purchase cost, pay it from your cash reserve before the match</li>
       </ul>
     </div>
 
     <!-- Panel 3: GK & DEF -->
     <div class="demo-panel" data-panel="3">
       <h2>GK &amp; DEF</h2>
-      <div class="demo-cards-row">
-        <div class="demo-card">
-          <div class="demo-card-image" style="background:#B8413B"><span>GK</span></div>
-          <div class="demo-card-body">
-            <div class="demo-card-name">Goalkeeper</div>
-            <div class="demo-card-primary">80% chance to reduce the opposition's score by 1</div>
+      <div class="demo-real-cards">
+        <div class="hero-card demo-real-card" style="--pos-color: #B8413B">
+          <div class="hero-card-image" style="background: #B8413B">
+            <img src="heroes/beasant.png" class="hero-card-photo" alt="Beasant" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+            <span class="hero-card-initials">BE</span>
+          </div>
+          <div class="hero-card-name">Beasant</div>
+          <div class="hero-card-meta">
+            <span class="hero-card-meta-pos">GK</span>
           </div>
         </div>
-        <div class="demo-card">
-          <div class="demo-card-image" style="background:#AAA54A"><span>DEF</span></div>
-          <div class="demo-card-body">
-            <div class="demo-card-name">Defender</div>
-            <div class="demo-card-primary">80% chance to reduce the opposition's score by 1</div>
+        <div class="hero-card demo-real-card" style="--pos-color: #AAA54A">
+          <div class="hero-card-image" style="background: #AAA54A">
+            <img src="heroes/cole.png" class="hero-card-photo" alt="Cole" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+            <span class="hero-card-initials">CO</span>
+          </div>
+          <div class="hero-card-name">Cole</div>
+          <div class="hero-card-meta">
+            <span class="hero-card-meta-pos">DEF</span>
           </div>
         </div>
       </div>
-      <p class="demo-panel-note">Defensive heroes add jeopardy to the opposition — the more you field, the harder it is to score against you.</p>
+      <p class="demo-panel-note">Goalkeepers and Defenders keep it tight at the back with last ditch tackles and world class saves, great for lower league teams on a budget.</p>
     </div>
 
     <!-- Panel 4: MID & STR -->
     <div class="demo-panel" data-panel="4">
       <h2>MID &amp; STR</h2>
-      <div class="demo-cards-row">
-        <div class="demo-card">
-          <div class="demo-card-image" style="background:#31813C"><span>MID</span></div>
-          <div class="demo-card-body">
-            <div class="demo-card-name">Midfielder</div>
-            <div class="demo-card-primary">80% chance to add a goal for your team</div>
+      <div class="demo-real-cards">
+        <div class="hero-card demo-real-card" style="--pos-color: #31813C">
+          <div class="hero-card-image" style="background: #31813C">
+            <img src="heroes/gerrard.png" class="hero-card-photo" alt="Gerrard" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+            <span class="hero-card-initials">GE</span>
+          </div>
+          <div class="hero-card-name">Gerrard</div>
+          <div class="hero-card-meta">
+            <span class="hero-card-meta-pos">MID</span>
           </div>
         </div>
-        <div class="demo-card">
-          <div class="demo-card-image" style="background:#BBBCB9"><span>STR</span></div>
-          <div class="demo-card-body">
-            <div class="demo-card-name">Striker</div>
-            <div class="demo-card-primary">80% chance to add a goal for your team</div>
+        <div class="hero-card demo-real-card" style="--pos-color: #BBBCB9">
+          <div class="hero-card-image" style="background: #BBBCB9">
+            <img src="heroes/drogba.png" class="hero-card-photo" alt="Drogba" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+            <span class="hero-card-initials">DR</span>
+          </div>
+          <div class="hero-card-name">Drogba</div>
+          <div class="hero-card-meta">
+            <span class="hero-card-meta-pos">STR</span>
           </div>
         </div>
       </div>
-      <p class="demo-panel-note">Attacking heroes can break deadlocks and turn the game — but they cost more. Choose wisely.</p>
+      <p class="demo-panel-note">Midfielders and Strikers break deadlocks and fire you to glory with long range efforts and poacher's finishes, at a premium price point. Can you afford to ignore them?</p>
     </div>
 
     <!-- Panel 5: FA Cup Heroics -->
     <div class="demo-panel" data-panel="5">
       <h2>FA Cup Heroics</h2>
       <div class="cup-heroes-info-body">
-        <p>Every hero carries a <strong>secondary bonus</strong> — a special ability rooted in their real FA Cup story. These don't fire automatically. Each one has a unique trigger condition tied to that player's legend.</p>
-        <p>Some thrive under the Wembley lights. Others rise against the odds. A few only show up when the moment is right.</p>
+        <p>Every hero carries a hidden <strong>secondary bonus</strong> — a special ability rooted in their real FA Cup story. These don't fire automatically. Each one has a unique trigger condition tied to that player's legend.</p>
+        <p>Some thrive on the big stage under the Arch. Others rise against the odds. A few only show up when the moment is right.</p>
         <div class="demo-panel-tip">💡 <strong>Tip:</strong> Keep an eye on Match Reports for clues on how to activate a hero's secondary bonus.</div>
       </div>
     </div>

@@ -654,6 +654,8 @@ function resetPenaltyUI() {
   ['home', 'away'].forEach(side => {
     for (let i = 0; i < 5; i++) {
       document.getElementById(`pen-${side}-${i}`).className = 'pen-circle';
+      const label = document.getElementById(`pen-label-${side}-${i}`);
+      if (label) { label.textContent = ''; label.className = 'pen-label'; }
     }
   });
 }
@@ -728,6 +730,12 @@ function animateKicks(sequence, index, homeScore, awayScore, round, homeName, aw
   setTimeout(() => {
     circle.classList.remove('pen-circle--active');
     circle.classList.add(scored ? 'pen-circle--scored' : 'pen-circle--missed');
+
+    const label = document.getElementById(`pen-label-${side}-${kickIndex}`);
+    if (label) {
+      label.textContent = scored ? 'Scored' : 'Missed';
+      label.className = `pen-label pen-label--${scored ? 'scored' : 'missed'}`;
+    }
 
     const newHomeScore = homeScore + (side === 'home' && scored ? 1 : 0);
     const newAwayScore = awayScore + (side === 'away' && scored ? 1 : 0);

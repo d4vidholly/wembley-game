@@ -345,8 +345,8 @@ header {
 }
 
 .simulate-btn:hover {
-  background-color: var(--text-colour);
-  color: var(--main-dark);
+  background: var(--main-light);
+  color: var(--text-colour);
   border: 3px solid var(--border);
 }
 
@@ -1059,6 +1059,39 @@ header {
   line-height: 1.6;
 }
 
+/* Real hero card stack used in info modal panels 3 & 4 */
+.demo-real-cards {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  margin: 24px 0 20px;
+  min-height: 190px;
+}
+
+.demo-real-card {
+  width: 120px;
+  flex-shrink: 0;
+  pointer-events: none !important;
+  cursor: default !important;
+  transition: none !important;
+  position: relative;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55);
+}
+
+.demo-real-card:first-child {
+  transform: rotate(-6deg);
+  transform-origin: bottom center;
+  z-index: 1;
+  margin-right: -32px;
+  filter: brightness(0.88);
+}
+
+.demo-real-card:last-child {
+  transform: rotate(5deg);
+  transform-origin: bottom center;
+  z-index: 2;
+}
+
 /* ═══════════════════════════════════════════════════════════
    CUP HEROES — MODAL
 ═══════════════════════════════════════════════════════════ */
@@ -1079,7 +1112,7 @@ header {
 .cup-heroes-sticky-header {
   position: sticky;
   top: 0;
-  background: linear-gradient(180deg, var(--main-dark) 60%, transparent 100%);
+  background: var(--main-dark);
   padding: 24px 0 14px;
   z-index: 10;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -1359,8 +1392,38 @@ header {
 .pen-column {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 10px;
+}
+
+#penColHome { align-items: flex-end; }
+#penColAway { align-items: flex-start; }
+
+.pen-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.pen-label {
+  font-size: 13px;
+  font-weight: 400;
+  width: 50px;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.pen-row--home .pen-label { text-align: right; }
+.pen-row--away .pen-label { text-align: left; }
+
+.pen-label--scored {
+  color: #ffffff;
+  opacity: 1;
+}
+
+.pen-label--missed {
+  color: #cc2200;
+  opacity: 1;
 }
 
 .pen-circle {
@@ -1433,6 +1496,13 @@ body[data-theme="classic"] {
 /* Round selector matches Play Match button */
 [data-theme="classic"] .round-dropdown {
   background-color: var(--main-dark);
+}
+
+[data-theme="classic"] .report-button:hover,
+[data-theme="classic"] .simulate-btn:hover {
+  background: #1A6437;
+  color: var(--text-colour);
+  border-color: #1A6437;
 }
 
 
@@ -1705,7 +1775,7 @@ body[data-theme="retro"]::after {
 }
 
 [data-theme="retro"] .cup-heroes-sticky-header {
-  background: linear-gradient(180deg, #000080 70%, transparent 100%);
+  background: #000080;
   border-bottom: 2px solid #00ffff;
 }
 
@@ -1832,6 +1902,9 @@ body[data-theme="retro"]::after {
   border-color: #cc0000;
   box-shadow: 2px 2px 0 #660000;
 }
+
+[data-theme="retro"] .pen-label--scored { color: #ffff00; }
+[data-theme="retro"] .pen-label--missed { color: #cc0000; }
 
 /* ── Hero report slots ──────────────────────────────────── */
 [data-theme="retro"] .hero-report-image {
@@ -2269,7 +2342,7 @@ body[data-theme="supporter"] {
 }
 
 [data-theme="supporter"] .cup-heroes-sticky-header {
-  background: linear-gradient(180deg, #0d2158 65%, transparent 100%);
+  background: #0d2158;
   border-bottom: 1px solid rgba(201, 162, 39, 0.25);
 }
 
@@ -2402,6 +2475,9 @@ body[data-theme="supporter"] {
   background: #8b1a1a;
   border-color: #8b1a1a;
 }
+
+[data-theme="supporter"] .pen-label--scored { color: #c9a227; }
+[data-theme="supporter"] .pen-label--missed { color: #8b1a1a; }
 
 /* ── Hero slots (team panel) ────────────────────────────── */
 [data-theme="supporter"] .hero-slot {
