@@ -1111,8 +1111,8 @@ window.addEventListener('load', function () {
     }
   }
 
-  supporterUnlockBtn.addEventListener('click', trySupporterUnlock);
-  supporterPasswordInput.addEventListener('keydown', e => {
+  if (supporterUnlockBtn) supporterUnlockBtn.addEventListener('click', trySupporterUnlock);
+  if (supporterPasswordInput) supporterPasswordInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') trySupporterUnlock();
   });
 
@@ -1134,8 +1134,8 @@ window.addEventListener('load', function () {
     }
   }
 
-  heroUnlockBtn.addEventListener('click', tryHeroUnlock);
-  heroUnlockPasswordInput.addEventListener('keydown', e => {
+  if (heroUnlockBtn) heroUnlockBtn.addEventListener('click', tryHeroUnlock);
+  if (heroUnlockPasswordInput) heroUnlockPasswordInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') tryHeroUnlock();
   });
 
