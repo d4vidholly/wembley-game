@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A browser-based companion for the classic Wembley board game. Players simulate FA Cup matches, select Cup Heroes, and track earnings. Deployed as a static site at `https://d4vidholly.github.io/wembley-game/`.
+A browser-based companion for the classic Wembley board game. Players simulate FA Cup matches, select Cup Heroes, and track earnings. Deployed as a static site at `https://www.wembleygame.live/`.
 
 There is no build step, no framework, no package manager. The project is three files: `index.html`, `script.js`, `styles.css`.
 
