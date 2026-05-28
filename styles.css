@@ -2574,6 +2574,11 @@ body[data-theme="supporter"] {
     max-height: 50px;
   }
 
+  .skin-toggle {
+    padding: 7px 12px;
+    font-size: 11px;
+  }
+
   /* ── Main layout ─────────────────────────────────── */
   .container {
     padding: 16px;
@@ -2634,18 +2639,12 @@ body[data-theme="supporter"] {
     letter-spacing: 0.3px;
   }
 
-  .match-info-icons {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    opacity: 0.85;
-  }
-
-  /* ── Match Info modal — centred, auto height ─────── */
+  /* ── All modals — centred, content-sized ─────────── */
   .modal-content {
-    width: 100%;
-    height: 100%;
-    border-radius: 0;
+    width: auto;
+    max-width: 88vw;
+    height: auto;
+    border-radius: 4px;
   }
 
   .match-info-modal-content {
@@ -2658,10 +2657,12 @@ body[data-theme="supporter"] {
 
   /* ── Match Report modal — compact, fits screen ───── */
   #matchReportModal .modal-content {
+    width: 92vw;
     height: auto;
-    max-height: 96vh;
+    max-height: 92vh;
     overflow-y: auto;
     padding: 20px;
+    border-radius: 4px;
   }
 
   #reportHomeBadge,
@@ -2694,6 +2695,43 @@ body[data-theme="supporter"] {
 
   .match-result {
     gap: 16px;
+  }
+
+  /* ── Match report score — align with badges ──────── */
+  .match-result--score {
+    gap: 10px;
+    align-items: start;
+  }
+
+  .score-center {
+    margin-top: 15px;
+  }
+
+  /* ── Cup Heroes in match report — smaller on mobile ─ */
+  .hero-report-row {
+    gap: 10px;
+  }
+
+  .hero-report-side {
+    gap: 3px;
+  }
+
+  .hero-report-slot {
+    width: 30px;
+  }
+
+  .hero-report-image {
+    width: 30px;
+    height: 30px;
+    font-size: 9px;
+  }
+
+  .hero-report-divider {
+    height: 30px;
+  }
+
+  .hero-report-pos {
+    font-size: 7px;
   }
 
   /* ── Penalty ─────────────────────────────────────── */
@@ -2786,7 +2824,22 @@ body[data-theme="supporter"] {
     display: grid;
   }
 
-  /* ── Footer ──────────────────────────────────────── */
+  /* ── Hero slot photo — ensure centred fill ───────── */
+  .hero-slot-photo {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    object-position: top center;
+  }
+
+  /* ── Footer — not sticky on mobile ───────────────── */
+  .banner {
+    position: static;
+    height: auto;
+    padding: 12px 0;
+  }
+
   .dhd-logo {
     height: 18px;
   }

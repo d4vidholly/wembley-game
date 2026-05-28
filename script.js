@@ -322,6 +322,14 @@ function toggleEarnings() {
   btn.textContent = showing ? 'Earnings ▼' : 'Earnings ▲';
 }
 
+function toggleHeroReport() {
+  const section = document.getElementById('heroNarrative');
+  const btn = document.getElementById('heroReportToggleBtn');
+  const showing = section.style.display === 'block';
+  section.style.display = showing ? 'none' : 'block';
+  btn.textContent = showing ? 'Cup Heroes ▼' : 'Cup Heroes ▲';
+}
+
 function dismissWelcome() {
   sessionStorage.setItem('wembley-welcomed', '1');
   document.getElementById('welcomeModal').classList.add('hidden');
@@ -332,6 +340,10 @@ function closeModal() {
   document.getElementById('replayButton').classList.add('hidden');
   document.getElementById('matchEarningsSection').style.display = '';
   document.getElementById('earningsToggleBtn').textContent = 'Earnings ▼';
+  document.getElementById('heroNarrative').style.display = '';
+  const heroToggleBtn = document.getElementById('heroReportToggleBtn');
+  heroToggleBtn.style.display = 'none';
+  heroToggleBtn.textContent = 'Cup Heroes ▼';
   selectedHeroesHome = [];
   selectedHeroesAway = [];
   updateHeroSummary('home');
@@ -626,6 +638,7 @@ function cssColorToHex(color) {
 }
 
 function fireConfetti(color1, color2) {
+  if (window.matchMedia('(max-width: 767px)').matches) return;
   const c1 = cssColorToHex(color1);
   const c2 = cssColorToHex(color2);
   const end = Date.now() + 4500;
@@ -830,7 +843,12 @@ function openMatchInfoModal() {
 function renderHeroReport(heroResult) {
   const container = document.getElementById('heroNarrative');
   const hasHeroes = heroResult.homeHeroEvents.length > 0 || heroResult.awayHeroEvents.length > 0;
-  if (!hasHeroes) { container.style.display = 'none'; container.innerHTML = ''; return; }
+  if (!hasHeroes) {
+    container.style.display = 'none';
+    container.innerHTML = '';
+    document.getElementById('heroReportToggleBtn').style.display = 'none';
+    return;
+  }
 
   const posColors = POSITION_COLORS;
 
@@ -853,12 +871,21 @@ function renderHeroReport(heroResult) {
     }).join('');
   }
 
-  container.style.display = 'block';
   container.innerHTML = `<div class="hero-report-row">
     <div class="hero-report-side">${buildSlots(heroResult.homeHeroEvents)}</div>
     <div class="hero-report-divider"></div>
     <div class="hero-report-side">${buildSlots(heroResult.awayHeroEvents)}</div>
   </div>`;
+
+  const toggleBtn = document.getElementById('heroReportToggleBtn');
+  if (window.matchMedia('(max-width: 767px)').matches) {
+    container.style.display = 'none';
+    toggleBtn.style.display = 'block';
+    toggleBtn.textContent = 'Cup Heroes ▼';
+  } else {
+    container.style.display = 'block';
+    toggleBtn.style.display = 'none';
+  }
 }
 
 function toggleHeroSlots(side) {
