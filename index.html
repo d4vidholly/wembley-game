@@ -71,8 +71,8 @@
           </select>
 
           <div class="cup-heroes-trigger">
-            <div class="cup-heroes-title">Cup Heroes <button class="cup-heroes-info-icon" onclick="openCupHeroesInfoModal()" aria-label="How does this work?">i</button><button class="cup-heroes-slots-toggle" onclick="toggleHeroSlots('home')" aria-label="Toggle hero slots">&#9662;</button></div>
-            <div class="hero-slots" id="heroSlotsHome">
+            <div class="cup-heroes-title"><button class="hero-mode-btn hero-mode-btn--active" data-mode="stars" onclick="setHeroMode('stars')">Int'l Stars</button><button class="hero-mode-btn" data-mode="heroes" onclick="setHeroMode('heroes')">Cup Heroes</button><button class="cup-heroes-info-icon" onclick="openCupHeroesInfoModal()" aria-label="How does this work?" style="display:none">i</button><button class="cup-heroes-slots-toggle" onclick="toggleHeroSlots('home')" aria-label="Toggle hero slots">&#9662;</button></div>
+            <div class="hero-slots hero-slots--stars-mode" id="heroSlotsHome">
               <div class="hero-slot" data-position="GK"><span class="hero-slot-label">GK</span></div>
               <div class="hero-slot" data-position="DEF"><span class="hero-slot-label">DEF</span></div>
               <div class="hero-slot" data-position="MID"><span class="hero-slot-label">MID</span></div>
@@ -132,8 +132,8 @@
           </select>
 
           <div class="cup-heroes-trigger">
-            <div class="cup-heroes-title">Cup Heroes <button class="cup-heroes-info-icon" onclick="openCupHeroesInfoModal()" aria-label="How does this work?">i</button><button class="cup-heroes-slots-toggle" onclick="toggleHeroSlots('away')" aria-label="Toggle hero slots">&#9662;</button></div>
-            <div class="hero-slots" id="heroSlotsAway">
+            <div class="cup-heroes-title"><button class="hero-mode-btn hero-mode-btn--active" data-mode="stars" onclick="setHeroMode('stars')">Int'l Stars</button><button class="hero-mode-btn" data-mode="heroes" onclick="setHeroMode('heroes')">Cup Heroes</button><button class="cup-heroes-info-icon" onclick="openCupHeroesInfoModal()" aria-label="How does this work?" style="display:none">i</button><button class="cup-heroes-slots-toggle" onclick="toggleHeroSlots('away')" aria-label="Toggle hero slots">&#9662;</button></div>
+            <div class="hero-slots hero-slots--stars-mode" id="heroSlotsAway">
               <div class="hero-slot" data-position="GK"><span class="hero-slot-label">GK</span></div>
               <div class="hero-slot" data-position="DEF"><span class="hero-slot-label">DEF</span></div>
               <div class="hero-slot" data-position="MID"><span class="hero-slot-label">MID</span></div>

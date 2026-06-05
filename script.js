@@ -45,6 +45,9 @@ let heroes = {};
 let selectedHeroesHome = [];
 let selectedHeroesAway = [];
 let heroesUnlocked = false;
+let heroMode = 'stars'; // 'stars' | 'heroes'
+let selectedStarsHome = [];
+let selectedStarsAway = [];
 
 // ────────────────────────────────────────────────────────────
 // DATA — FETCH & PARSE FROM GOOGLE SHEETS
@@ -326,8 +329,9 @@ function toggleHeroReport() {
   const section = document.getElementById('heroNarrative');
   const btn = document.getElementById('heroReportToggleBtn');
   const showing = section.style.display === 'block';
+  const label = heroMode === 'stars' ? "Int'l Stars" : 'Cup Heroes';
   section.style.display = showing ? 'none' : 'block';
-  btn.textContent = showing ? 'Cup Heroes ▼' : 'Cup Heroes ▲';
+  btn.textContent = label + (showing ? ' ▼' : ' ▲');
 }
 
 function dismissWelcome() {
@@ -343,11 +347,18 @@ function closeModal() {
   document.getElementById('heroNarrative').style.display = '';
   const heroToggleBtn = document.getElementById('heroReportToggleBtn');
   heroToggleBtn.style.display = 'none';
-  heroToggleBtn.textContent = 'Cup Heroes ▼';
+  heroToggleBtn.textContent = (heroMode === 'stars' ? "Int'l Stars" : 'Cup Heroes') + ' ▼';
   selectedHeroesHome = [];
   selectedHeroesAway = [];
-  updateHeroSummary('home');
-  updateHeroSummary('away');
+  selectedStarsHome = [];
+  selectedStarsAway = [];
+  if (heroMode === 'stars') {
+    updateStarSlots('home');
+    updateStarSlots('away');
+  } else {
+    updateHeroSummary('home');
+    updateHeroSummary('away');
+  }
 }
 
 // ────────────────────────────────────────────────────────────
@@ -453,6 +464,17 @@ function applyHeroBonuses(homeGoals, awayGoals, homeName, awayName, round) {
   // Phase 2: offensive heroes add on top — cannot be cancelled by phase 1
   selectedHeroesHome.filter(isOffensive).forEach(id => applyHero(id, true));
   selectedHeroesAway.filter(isOffensive).forEach(id => applyHero(id, false));
+  // Phase 3: International Stars — guaranteed +1 goal each
+  if (heroMode === 'stars') {
+    selectedStarsHome.forEach(pos => {
+      homeGoals++;
+      homeHeroEvents.push({ id: pos.toLowerCase(), name: pos, position: pos, primaryFired: true, secondaryFired: false, tooltip: `${pos} International Star scored for ${homeName}` });
+    });
+    selectedStarsAway.forEach(pos => {
+      awayGoals++;
+      awayHeroEvents.push({ id: pos.toLowerCase(), name: pos, position: pos, primaryFired: true, secondaryFired: false, tooltip: `${pos} International Star scored for ${awayName}` });
+    });
+  }
   return { homeGoals, awayGoals, homeHeroEvents, awayHeroEvents };
 }
 
@@ -611,8 +633,9 @@ function showReplayButton(originalHome, originalAway, round) {
   replayButton.parentNode.replaceChild(newButton, replayButton);
 
   newButton.addEventListener('click', () => {
-    // FA Cup rule: replay is hosted by the original away team — swap heroes so they follow their teams
+    // FA Cup rule: replay is hosted by the original away team — swap heroes/stars so they follow their teams
     [selectedHeroesHome, selectedHeroesAway] = [selectedHeroesAway, selectedHeroesHome];
+    [selectedStarsHome, selectedStarsAway] = [selectedStarsAway, selectedStarsHome];
     simulateMatch(originalAway, originalHome, round, true);
     newButton.classList.add('hidden');
   });
@@ -641,7 +664,7 @@ function fireConfetti(color1, color2) {
   if (window.matchMedia('(max-width: 767px)').matches) return;
   const c1 = cssColorToHex(color1);
   const c2 = cssColorToHex(color2);
-  const end = Date.now() + 4500;
+  const end = Date.now() + 2250;
 
   (function frame() {
     confetti({ particleCount: 7, angle: 60,  spread: 65, origin: { x: 0 }, colors: [c1], zIndex: 1100 });
@@ -842,7 +865,7 @@ function openMatchInfoModal() {
 
 function renderHeroReport(heroResult) {
   const container = document.getElementById('heroNarrative');
-  const hasHeroes = heroResult.homeHeroEvents.length > 0 || heroResult.awayHeroEvents.length > 0;
+  const hasHeroes = heroMode !== 'stars' && (heroResult.homeHeroEvents.length > 0 || heroResult.awayHeroEvents.length > 0);
   if (!hasHeroes) {
     container.style.display = 'none';
     container.innerHTML = '';
@@ -877,11 +900,12 @@ function renderHeroReport(heroResult) {
     <div class="hero-report-side">${buildSlots(heroResult.awayHeroEvents)}</div>
   </div>`;
 
+  const label = heroMode === 'stars' ? "Int'l Stars" : 'Cup Heroes';
   const toggleBtn = document.getElementById('heroReportToggleBtn');
   if (window.matchMedia('(max-width: 767px)').matches) {
     container.style.display = 'none';
     toggleBtn.style.display = 'block';
-    toggleBtn.textContent = 'Cup Heroes ▼';
+    toggleBtn.textContent = label + ' ▼';
   } else {
     container.style.display = 'block';
     toggleBtn.style.display = 'none';
@@ -894,6 +918,58 @@ function toggleHeroSlots(side) {
   const btn = slots.closest('.cup-heroes-trigger').querySelector('.cup-heroes-slots-toggle');
   const isOpen = slots.classList.toggle('hero-slots--open');
   btn.classList.toggle('cup-heroes-slots-toggle--open', isOpen);
+}
+
+function setHeroMode(mode) {
+  heroMode = mode;
+  selectedStarsHome = [];
+  selectedStarsAway = [];
+  selectedHeroesHome = [];
+  selectedHeroesAway = [];
+
+  document.querySelectorAll('.hero-mode-btn').forEach(btn => {
+    btn.classList.toggle('hero-mode-btn--active', btn.dataset.mode === mode);
+  });
+  document.querySelectorAll('.cup-heroes-info-icon').forEach(btn => {
+    btn.style.display = mode === 'heroes' ? '' : 'none';
+  });
+
+  ['home', 'away'].forEach(side => {
+    const slotsEl = document.getElementById(side === 'home' ? 'heroSlotsHome' : 'heroSlotsAway');
+    slotsEl.classList.toggle('hero-slots--stars-mode', mode === 'stars');
+    if (mode === 'stars') {
+      updateStarSlots(side);
+    } else {
+      updateHeroSummary(side);
+    }
+  });
+}
+
+function toggleStar(side, position) {
+  const selected = side === 'home' ? selectedStarsHome : selectedStarsAway;
+  const idx = selected.indexOf(position);
+  if (idx >= 0) {
+    selected.splice(idx, 1);
+  } else if (selected.length < 3) {
+    selected.push(position);
+  }
+  updateStarSlots(side);
+}
+
+function updateStarSlots(side) {
+  const selected = side === 'home' ? selectedStarsHome : selectedStarsAway;
+  const slotsEl = document.getElementById(side === 'home' ? 'heroSlotsHome' : 'heroSlotsAway');
+  if (!slotsEl) return;
+
+  ['GK', 'DEF', 'MID', 'STR'].forEach(pos => {
+    const slot = slotsEl.querySelector(`.hero-slot[data-position="${pos}"]`);
+    if (!slot) return;
+    const isFilled = selected.includes(pos);
+    slot.classList.toggle('hero-slot--star-filled', isFilled);
+    slot.style.background = isFilled ? POSITION_COLORS[pos] : '';
+    slot.style.boxShadow = '';
+    slot.innerHTML = `<span class="hero-slot-label">${pos}</span>`;
+  });
 }
 
 function openCupHeroesInfoModal() {
@@ -1193,9 +1269,15 @@ window.addEventListener('load', function () {
   document.querySelectorAll('#heroSlotsHome .hero-slot, #heroSlotsAway .hero-slot').forEach(slot => {
     slot.addEventListener('click', () => {
       const side = slot.closest('#heroSlotsHome') ? 'home' : 'away';
-      openCupHeroesModal(side, slot.dataset.position);
+      if (heroMode === 'stars') {
+        toggleStar(side, slot.dataset.position);
+      } else {
+        openCupHeroesModal(side, slot.dataset.position);
+      }
     });
   });
+
+  setHeroMode('stars');
 
   // Kick off async data load — UI initialises inside fetchTeams() on success
   Promise.all([fetchTeams(), fetchHeroes()]).catch(err => console.error('Init failed:', err));
