@@ -48,6 +48,7 @@ let heroesUnlocked = false;
 let heroMode = 'stars'; // 'stars' | 'heroes'
 let selectedStarsHome = [];
 let selectedStarsAway = [];
+let _matchStartTime = null;
 
 // ────────────────────────────────────────────────────────────
 // DATA — FETCH & PARSE FROM GOOGLE SHEETS
@@ -340,6 +341,7 @@ function dismissWelcome() {
 }
 
 function closeModal() {
+  window.Analytics?.setStage('team_select');
   document.getElementById('matchReportModal').classList.add('hidden');
   document.getElementById('replayButton').classList.add('hidden');
   document.getElementById('matchEarningsSection').style.display = '';
@@ -589,7 +591,7 @@ function simulateMatch(homeName, awayName, round, replay = false) {
 
   // — Penalty shootout takes over — earnings are calculated in finishShootout —
   if (isPenaltyShootout) {
-    startPenaltyShootout(homeName, awayName, round);
+    startPenaltyShootout(homeName, awayName, round, homeGoals, awayGoals);
     return;
   }
 
@@ -622,6 +624,20 @@ function simulateMatch(homeName, awayName, round, replay = false) {
     const c2 = teams[winnerName].color2 || '#ffffff';
     fireConfetti(c1, c2);
   }
+
+  window.Analytics?.logMatchCompleted({
+    home_team:        homeName,
+    away_team:        awayName,
+    home_score:       homeGoals,
+    away_score:       awayGoals,
+    winner:           winnerKey === 'home' ? homeName : winnerKey === 'away' ? awayName : 'draw',
+    skin:             document.body.dataset.theme,
+    round,
+    duration_seconds: _matchStartTime ? Math.round((Date.now() - _matchStartTime) / 1000) : null,
+    cup_heroes_used:  { home: selectedHeroesHome.map(id => heroes[id]?.name).filter(Boolean), away: selectedHeroesAway.map(id => heroes[id]?.name).filter(Boolean) },
+    went_to_penalties: false,
+  });
+  window.Analytics?.setStage('result_screen');
 }
 
 function showReplayButton(originalHome, originalAway, round) {
@@ -727,7 +743,7 @@ function computePenaltyResults() {
   return { home, away };
 }
 
-function startPenaltyShootout(homeName, awayName, round) {
+function startPenaltyShootout(homeName, awayName, round, homeGoals, awayGoals) {
   const penResults = computePenaltyResults();
 
   const sequence = [];
@@ -746,6 +762,7 @@ function startPenaltyShootout(homeName, awayName, round) {
     startBtn.classList.add('hidden');
     document.getElementById('reportResult').innerText = 'Penalty Shoot Out in Play';
     document.getElementById('penaltyCirclesSection').classList.remove('hidden');
+    window.Analytics?.logPenaltyShootoutStarted({ home_team: homeName, away_team: awayName, score_at_90_mins: `${homeGoals}-${awayGoals}` });
     animateKicks(sequence, 0, 0, 0, round, homeName, awayName);
   };
 
@@ -754,7 +771,7 @@ function startPenaltyShootout(homeName, awayName, round) {
 
 function animateKicks(sequence, index, homeScore, awayScore, round, homeName, awayName) {
   if (index >= sequence.length) {
-    finishShootout(homeScore, awayScore, round, homeName, awayName);
+    finishShootout(homeScore, awayScore, round, homeName, awayName, sequence.length);
     return;
   }
 
@@ -787,7 +804,7 @@ function animateKicks(sequence, index, homeScore, awayScore, round, homeName, aw
 
     if (homeCannotWin || awayCannotWin) {
       setTimeout(() => {
-        finishShootout(newHomeScore, newAwayScore, round, homeName, awayName);
+        finishShootout(newHomeScore, newAwayScore, round, homeName, awayName, index + 1);
       }, PEN_KICK_DURATION_MS * 0.2);
       return;
     }
@@ -798,7 +815,7 @@ function animateKicks(sequence, index, homeScore, awayScore, round, homeName, aw
   }, PEN_KICK_DURATION_MS * 0.8);
 }
 
-function finishShootout(homeScore, awayScore, round, homeName, awayName) {
+function finishShootout(homeScore, awayScore, round, homeName, awayName, kicksTaken) {
   // Derive winner from actual kick results (coin flip if somehow level — safety net only)
   let winnerKey;
   if (homeScore > awayScore) {
@@ -840,6 +857,21 @@ function finishShootout(homeScore, awayScore, round, homeName, awayName) {
     const c2 = teams[winner].color2 || '#ffffff';
     fireConfetti(c1, c2);
   }
+
+  window.Analytics?.logPenaltyShootoutCompleted({ home_team: homeName, away_team: awayName, winner, kicks_taken: kicksTaken });
+  window.Analytics?.logMatchCompleted({
+    home_team:         homeName,
+    away_team:         awayName,
+    home_score:        homeScore,
+    away_score:        awayScore,
+    winner,
+    skin:              document.body.dataset.theme,
+    round,
+    duration_seconds:  _matchStartTime ? Math.round((Date.now() - _matchStartTime) / 1000) : null,
+    cup_heroes_used:   { home: selectedHeroesHome.map(id => heroes[id]?.name).filter(Boolean), away: selectedHeroesAway.map(id => heroes[id]?.name).filter(Boolean) },
+    went_to_penalties: true,
+  });
+  window.Analytics?.setStage('result_screen');
 }
 
 // ────────────────────────────────────────────────────────────
@@ -1004,6 +1036,7 @@ function advanceDemoPanel() {
 }
 
 function setSkin(skin) {
+  window.Analytics?.logSkinChanged({ from_skin: document.body.dataset.theme, to_skin: skin });
   document.body.dataset.theme = skin;
   const labels = { classic: 'Classic 2016', sky: 'Sky 2016', retro: 'Retro', supporter: 'Supporter 2016' };
   document.getElementById('skinToggle').textContent = (labels[skin] || skin) + ' ▾';
@@ -1021,6 +1054,7 @@ function openHeroUnlockModal() {
 }
 
 function openCupHeroesModal(side, filter = 'All') {
+  window.Analytics?.setStage('hero_select');
   const selectId = side === 'home' ? 'teamSelectHome' : 'teamSelectAway';
   const teamName = document.getElementById(selectId).value;
   const teamData = teams[teamName];
@@ -1099,6 +1133,8 @@ function toggleHero(side, heroId) {
     } else {
       selected.push(heroId);
     }
+    const teamName = document.getElementById(side === 'home' ? 'teamSelectHome' : 'teamSelectAway').value;
+    window.Analytics?.logCupHeroSelected({ player_name: hero.name, slot: hero.position, team: teamName });
   }
 
   const currentFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'All';
@@ -1141,6 +1177,8 @@ function updateHeroSummary(side) {
 // ────────────────────────────────────────────────────────────
 
 window.addEventListener('load', function () {
+  window.Analytics?.init();
+
   document.getElementById('teamSelectHome').addEventListener('change', updateHomeTeamUI);
   document.getElementById('teamSelectAway').addEventListener('change', updateAwayTeamUI);
   document.getElementById('roundSelect').addEventListener('change', updateRoundUI);
@@ -1150,6 +1188,16 @@ window.addEventListener('load', function () {
     const awayName = document.getElementById('teamSelectAway').value;
     const round    = document.getElementById('roundSelect').value;
     if (!(homeName && awayName && round)) return;
+
+    _matchStartTime = Date.now();
+    window.Analytics?.logMatchStart({
+      home_team:          homeName,
+      away_team:          awayName,
+      skin:               document.body.dataset.theme,
+      cup_heroes_selected: { home: selectedHeroesHome.map(id => heroes[id]?.name).filter(Boolean), away: selectedHeroesAway.map(id => heroes[id]?.name).filter(Boolean) },
+      round,
+    });
+    window.Analytics?.setStage('match_in_progress');
 
     if (window.innerWidth > 767) {
       const teamsEl  = document.querySelector('.teams');
