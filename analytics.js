@@ -1,6 +1,7 @@
 // ────────────────────────────────────────────────────────────
 // ANALYTICS — Supabase event tracking
 // ────────────────────────────────────────────────────────────
+console.log('[Analytics] script loaded');
 
 const SUPABASE_URL      = 'https://ktfioofuawvvuqlebqby.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_JlfdWbi45EymLEKOl--R4g_4w9N1SNN';
