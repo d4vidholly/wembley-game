@@ -41,7 +41,7 @@ function _autoFields() {
 async function _post(eventType, data) {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/${_TABLE}`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${_TABLE}`, {
       method: 'POST',
       keepalive: true,
       headers: {
@@ -52,6 +52,7 @@ async function _post(eventType, data) {
       },
       body: JSON.stringify({ session_id: _sessionId, event_type: eventType, data: { ..._autoFields(), ...data } }),
     });
+    if (!res.ok) console.warn('[Analytics] Event rejected:', eventType, res.status, await res.text());
   } catch (err) {
     console.warn('[Analytics] Failed to log event:', eventType, err);
   }
