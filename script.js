@@ -1036,7 +1036,7 @@ function advanceDemoPanel() {
 }
 
 function setSkin(skin) {
-  window.Analytics?.logSkinChanged({ from_skin: document.body.dataset.theme, to_skin: skin });
+  if (document.body.dataset.theme !== skin) window.Analytics?.logSkinChanged({ from_skin: document.body.dataset.theme, to_skin: skin });
   document.body.dataset.theme = skin;
   const labels = { classic: 'Classic 2016', sky: 'Sky 2016', retro: 'Retro', supporter: 'Supporter 2016' };
   document.getElementById('skinToggle').textContent = (labels[skin] || skin) + ' ▾';

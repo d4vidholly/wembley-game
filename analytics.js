@@ -66,6 +66,7 @@ function _logDropOff() {
 
 window.Analytics = {
   init() {
+    if (/bot|crawl|spider|slurp|bingbot|googlebot|facebookexternalhit/i.test(navigator.userAgent)) return;
     _initIds();
     _stageEnteredAt = Date.now();
 
