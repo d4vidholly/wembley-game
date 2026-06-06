@@ -2,9 +2,8 @@
 // ANALYTICS — Supabase event tracking
 // ────────────────────────────────────────────────────────────
 
-// TODO: Fill in your Supabase project URL and anon key
-const SUPABASE_URL      = '';
-const SUPABASE_ANON_KEY = '';
+const SUPABASE_URL      = 'https://ktfioofuawvvuqlebqby.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_JlfdWbi45EymLEKOl--R4g_4w9N1SNN';
 
 const _TABLE = 'game_events';
 
