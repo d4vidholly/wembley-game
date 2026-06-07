@@ -12,9 +12,17 @@ let _sessionId;
 let _visitorId;
 let _deviceType;
 let _isReturnVisitor;
-let _currentStage    = 'team_select';
-let _stageEnteredAt  = Date.now();
-let _penStartedAt    = null;
+let _currentStage      = 'team_select';
+let _stageEnteredAt    = Date.now();
+let _penStartedAt      = null;
+let _isBotSession      = false;
+let _matchHasStarted   = false;
+let _abandonmentLogged = false;
+let _teamState         = { home: null, away: null };
+
+function isBot(ua) {
+  return /googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|crawler|spider/i.test(ua);
+}
 
 function _getDeviceType() {
   const w = screen.width;
@@ -40,6 +48,7 @@ function _autoFields() {
 }
 
 async function _post(eventType, data) {
+  if (_isBotSession) return;
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${_TABLE}`, {
@@ -62,20 +71,31 @@ async function _post(eventType, data) {
 function _logDropOff() {
   const timeOnStage = Math.round((Date.now() - _stageEnteredAt) / 1000);
   _post('drop_off', { stage: _currentStage, time_on_stage_seconds: timeOnStage });
+  if (!_matchHasStarted && (_teamState.home !== null || _teamState.away !== null) && !_abandonmentLogged) {
+    _abandonmentLogged = true;
+    _post('match_abandoned', {
+      home_team:            _teamState.home,
+      away_team:            _teamState.away,
+      both_teams_selected:  _teamState.home !== null && _teamState.away !== null,
+    });
+  }
 }
 
 window.Analytics = {
   init() {
-    if (/bot|crawl|spider|slurp|bingbot|googlebot|facebookexternalhit/i.test(navigator.userAgent)) return;
+    if (isBot(navigator.userAgent)) {
+      _isBotSession = true;
+      return;
+    }
     _initIds();
     _stageEnteredAt = Date.now();
 
     _post('session_start', {
-      visitor_id:       _visitorId,
-      device_type:      _deviceType,
+      visitor_id:        _visitorId,
+      device_type:       _deviceType,
       is_return_visitor: _isReturnVisitor,
-      referrer:         document.referrer,
-      user_agent:       navigator.userAgent,
+      referrer:          document.referrer,
+      user_agent:        navigator.userAgent,
     });
 
     window.addEventListener('beforeunload', _logDropOff);
@@ -89,7 +109,13 @@ window.Analytics = {
     _stageEnteredAt = Date.now();
   },
 
+  setTeamSelection({ home, away }) {
+    if (home !== undefined) _teamState.home = home || null;
+    if (away !== undefined) _teamState.away = away || null;
+  },
+
   logMatchStart({ home_team, away_team, skin, cup_heroes_selected, round }) {
+    _matchHasStarted = true;
     _post('match_start', { home_team, away_team, skin, cup_heroes_selected, round });
   },
 
@@ -113,6 +139,19 @@ window.Analytics = {
   },
 
   logSkinChanged({ from_skin, to_skin }) {
+    if (from_skin === to_skin) return;
     _post('skin_changed', { from_skin, to_skin });
+  },
+
+  logDropdownOpened({ which, current_value }) {
+    _post('dropdown_opened', { which, current_value });
+  },
+
+  logTeamSelected({ which, team_name, time_to_select_seconds }) {
+    _post('team_selected', { which, team_name, time_to_select_seconds });
+  },
+
+  logTeamChanged({ which, from_team, to_team }) {
+    _post('team_changed', { which, from_team, to_team });
   },
 };

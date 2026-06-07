@@ -1183,6 +1183,39 @@ window.addEventListener('load', function () {
   document.getElementById('teamSelectAway').addEventListener('change', updateAwayTeamUI);
   document.getElementById('roundSelect').addEventListener('change', updateRoundUI);
 
+  const _dropdownState = {
+    home: { openedAt: null, valueOnOpen: null },
+    away: { openedAt: null, valueOnOpen: null },
+  };
+
+  ['home', 'away'].forEach(side => {
+    const el = document.getElementById(side === 'home' ? 'teamSelectHome' : 'teamSelectAway');
+
+    el.addEventListener('focus', () => {
+      _dropdownState[side].openedAt    = Date.now();
+      _dropdownState[side].valueOnOpen = el.value || null;
+      window.Analytics?.logDropdownOpened({ which: side, current_value: el.value || null });
+    });
+
+    el.addEventListener('change', () => {
+      const teamName = el.value || null;
+      const state    = _dropdownState[side];
+      const time_to_select_seconds = state.openedAt !== null
+        ? Math.round((Date.now() - state.openedAt) / 1000)
+        : null;
+
+      window.Analytics?.logTeamSelected({ which: side, team_name: teamName, time_to_select_seconds });
+
+      if (state.valueOnOpen && teamName && teamName !== state.valueOnOpen) {
+        window.Analytics?.logTeamChanged({ which: side, from_team: state.valueOnOpen, to_team: teamName });
+      }
+
+      state.openedAt    = null;
+      state.valueOnOpen = null;
+      window.Analytics?.setTeamSelection({ [side]: teamName });
+    });
+  });
+
   document.getElementById('simulateButton').addEventListener('click', () => {
     const homeName = document.getElementById('teamSelectHome').value;
     const awayName = document.getElementById('teamSelectAway').value;
