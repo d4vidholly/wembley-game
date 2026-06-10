@@ -5,12 +5,15 @@
 // File → Share → Publish to web → Sheet1 → CSV → Copy link
 // ────────────────────────────────────────────────────────────
 const SHEET_CSV_URL        = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT5kLTvHx5Vk_gL6Hw2w82zMDgVXfaEM_UJoB1OR1I8UwNgVE4ajNEOsTzQUFFtpZp2dVfqiNozzXTu/pub?gid=0&single=true&output=csv';
+const RETRO_SHEET_CSV_URL  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRTGB1OfJePy6DYOdI1knPS25hFe58kp4CSN5OYZqzCJWs96XV5MJZxaLj_WV4oTiZj7y0DCltjPlIM/pub?gid=0&single=true&output=csv';
 const HEROES_CSV_URL       = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSVkuUfkTOQ-OUfbb8ze1HcVKwWWXtf1rbRYMyPPYoFZZ1TB02oSmbluCsRwvyRH0yhP8EJu5CQSPFD/pub?gid=2026393616&single=true&output=csv';
 const PEN_KICK_DURATION_MS = 2000; // ms per kick
 const BADGES_PATH          = 'badges/';
 const HEROES_PATH          = 'heroes/';
 const CACHE_TTL_MS         = 15 * 60 * 1000; // re-fetch sheets after 15 minutes
-const POSITION_COLORS      = { GK: '#B8413B', DEF: '#AAA54A', MID: '#31813C', STR: '#BBBCB9' };
+const POSITION_COLORS       = { GK: '#B8413B', DEF: '#AAA54A', MID: '#31813C', STR: '#BBBCB9' };
+const RETRO_POSITION_COLORS = { GK: '#B8413B', DEF: '#31813C', MID: '#AAA54A', STR: '#BBBCB9' };
+const RETRO_POSITION_LABELS = { GK: 'GK', DEF: 'IF', MID: 'OF', STR: 'CF' };
 const UNLOCK_HASH          = '72b636044cc9db44dd3832b5d99865b3404c250b22738320a19ac334da4eedeb';
 
 // ────────────────────────────────────────────────────────────
@@ -22,6 +25,14 @@ const roundData = {
   "Quarter Final":{ revenue: "-",     ifDraw: "Replay if Draw",            kickoff: "15:00 - Day",   stadium: "" },
   "Semi Final":   { revenue: "$30000",ifDraw: "Penalty Shoot Out if Draw", kickoff: "15:00 - Day",   stadium: "Wembley" },
   "Final":        { revenue: "$75000",ifDraw: "Penalty Shoot Out if Draw", kickoff: "16:30 - Day",   stadium: "Wembley" }
+};
+
+const RETRO_ROUND_DATA = {
+  "3rd Round":  { revenue: "-",     ifDraw: "Replay if Draw",            kickoff: "15:00 - Day",   stadium: "" },
+  "4th Round":  { revenue: "-",     ifDraw: "Replay if Draw",            kickoff: "19:45 - Night", stadium: "" },
+  "5th Round":  { revenue: "-",     ifDraw: "Replay if Draw",            kickoff: "15:00 - Day",   stadium: "" },
+  "Semi Final": { revenue: "£15000",ifDraw: "Penalty Shoot Out if Draw", kickoff: "15:00 - Day",   stadium: "Villa Park" },
+  "Final":      { revenue: "£30000",ifDraw: "Penalty Shoot Out if Draw", kickoff: "16:30 - Day",   stadium: "Wembley" }
 };
 
 const goalChancesByStars = {
@@ -83,10 +94,10 @@ async function fetchCSV(url, cacheKey) {
   return text;
 }
 
-async function fetchTeams() {
+async function fetchTeams(url = SHEET_CSV_URL, cacheKey = 'wembley-teams-v2') {
   setLoadingState(true);
   try {
-    const csv = await fetchCSV(SHEET_CSV_URL, 'wembley-teams-v2');
+    const csv = await fetchCSV(url, cacheKey);
     teams = parseTeamsCSV(csv);
     populateTeamSelects();
     initUI();
@@ -98,6 +109,19 @@ async function fetchTeams() {
   } finally {
     setLoadingState(false);
   }
+}
+
+function colorCircleSVG(color, color2) {
+  const toColor = c => {
+    if (!c) return null;
+    const s = c.trim();
+    return /^[0-9a-fA-F]{3,6}$/.test(s) ? '#' + s : s;
+  };
+  const c1 = toColor(color) || '#888888';
+  const c2 = toColor(color2);
+  const inner = c2 ? `<circle cx="50" cy="50" r="30" fill="${c2}"/>` : '';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="${c1}"/>${inner}</svg>`;
+  return 'data:image/svg+xml,' + encodeURIComponent(svg);
 }
 
 function parseTeamsCSV(csv) {
@@ -121,8 +145,9 @@ function parseTeamsCSV(csv) {
     const color2    = col('color2') >= 0 ? v[col('color2')] : '';
 
     const availCol = col('available');
+    const badgeFile = v[col('badge')];
     result[name] = {
-      badge:     BADGES_PATH + v[col('badge')],
+      badge:     badgeFile ? BADGES_PATH + badgeFile : colorCircleSVG(color1 || '#888888', color2 || null),
       division:  v[col('division')],
       stars:     '★'.repeat(starCount),
       stadium:   v[col('stadium')],
@@ -284,9 +309,10 @@ function updateStadium() {
   const stadiumText   = document.getElementById('stadiumTextHome');
   const prizeMoney    = document.getElementById('prizeMoney');
 
-  if (isWembley(selectedRound)) {
-    stadiumText.textContent = 'Wembley';
-    prizeMoney.innerText    = roundData[selectedRound].revenue;
+  const rd = activeRoundData();
+  if (isFixedVenue(selectedRound)) {
+    stadiumText.textContent = rd[selectedRound].stadium;
+    prizeMoney.innerText    = rd[selectedRound].revenue;
   } else if (teams[selectedTeam]) {
     stadiumText.textContent = teams[selectedTeam].stadium;
     prizeMoney.innerText    = formatMoney(teams[selectedTeam].gate);
@@ -299,9 +325,10 @@ function updateStadium() {
 function updateRoundUI() {
   const selectedRound = document.getElementById('roundSelect').value;
 
-  if (roundData[selectedRound]) {
-    document.getElementById('ifDraw').innerText      = roundData[selectedRound].ifDraw;
-    document.getElementById('kickOffTime').innerText = roundData[selectedRound].kickoff;
+  const rd = activeRoundData();
+  if (rd[selectedRound]) {
+    document.getElementById('ifDraw').innerText      = rd[selectedRound].ifDraw;
+    document.getElementById('kickOffTime').innerText = rd[selectedRound].kickoff;
   } else {
     document.getElementById('ifDraw').innerText      = '-';
     document.getElementById('kickOffTime').innerText = '-';
@@ -371,8 +398,32 @@ function parseStars(starString) {
   return starString.replace(/[^★]/g, '').length;
 }
 
-function isWembley(round) {
+function isRetroSkin(skin) {
+  return skin === 'retro';
+}
+
+function isRetro() {
+  return isRetroSkin(document.body.dataset.theme);
+}
+
+function isFixedVenue(round) {
   return round === 'Semi Final' || round === 'Final';
+}
+
+function isWembley(round) {
+  return isRetro() ? round === 'Final' : (round === 'Semi Final' || round === 'Final');
+}
+
+function activeRoundData() {
+  return isRetro() ? RETRO_ROUND_DATA : roundData;
+}
+
+function getPositionColors() {
+  return isRetro() ? RETRO_POSITION_COLORS : POSITION_COLORS;
+}
+
+function getPositionLabel(pos) {
+  return isRetro() ? (RETRO_POSITION_LABELS[pos] || pos) : pos;
 }
 
 function applyHeroBonuses(homeGoals, awayGoals, homeName, awayName, round) {
@@ -508,10 +559,15 @@ function formatMoney(amount) {
   return `${CURRENCY}${amount.toLocaleString()}`;
 }
 
-function calculatePrizeMoney(homeTeam, winner, round) {
-  const totalRevenue = isWembley(round)
-    ? parseMoney(roundData[round].revenue)
-    : teams[homeTeam].gate;
+function calculatePrizeMoney(homeTeam, winner, round, replay = false) {
+  let totalRevenue;
+  if (isFixedVenue(round)) {
+    totalRevenue = parseMoney(activeRoundData()[round].revenue);
+  } else if (isRetro() && replay) {
+    totalRevenue = 3000;
+  } else {
+    totalRevenue = teams[homeTeam].gate;
+  }
 
   let homeShare = 0;
   let awayShare = 0;
@@ -530,10 +586,11 @@ function calculatePrizeMoney(homeTeam, winner, round) {
 }
 
 function calculateRoundBonus(round, stars) {
-  const bonusMatrix = {
-    "Quarter Final": { 3: 2000, 2: 4000, 1: 6000 },
-    "Semi Final":    { 3: 4000, 2: 8000, 1: 12000 }
-  };
+  const bonusMatrix = isRetro()
+    ? { "5th Round":  { 3: 1000, 2: 2000, 1: 3000 },
+        "Semi Final": { 3: 2000, 2: 4000, 1: 6000 } }
+    : { "Quarter Final": { 3: 2000, 2: 4000, 1: 6000 },
+        "Semi Final":    { 3: 4000, 2: 8000, 1: 12000 } };
   return bonusMatrix[round]?.[parseStars(stars)] || 0;
 }
 
@@ -580,7 +637,7 @@ function simulateMatch(homeName, awayName, round, replay = false) {
       : `${awayName} progress to the next round`;
 
   } else {
-    if (isWembley(round) || replay) {
+    if (isFixedVenue(round) || replay) {
       isPenaltyShootout = true;
     } else {
       winnerKey  = 'draw';
@@ -591,19 +648,19 @@ function simulateMatch(homeName, awayName, round, replay = false) {
 
   // — Penalty shootout takes over — earnings are calculated in finishShootout —
   if (isPenaltyShootout) {
-    startPenaltyShootout(homeName, awayName, round, homeGoals, awayGoals);
+    startPenaltyShootout(homeName, awayName, round, homeGoals, awayGoals, replay);
     return;
   }
 
   // — Gate revenue —
-  const prize = calculatePrizeMoney(homeName, winnerKey, round);
+  const prize = calculatePrizeMoney(homeName, winnerKey, round, replay);
   document.querySelector('#ticketHome p').textContent = formatMoney(prize.home);
   document.querySelector('#ticketAway p').textContent = formatMoney(prize.away);
 
   // — Round bonus (not awarded on a drawn QF before the replay) —
   let homeBonusAmount = 0;
   let awayBonusAmount = 0;
-  if (!(round === 'Quarter Final' && winnerKey === 'draw' && !replay)) {
+  if (!((round === 'Quarter Final' || round === '5th Round') && winnerKey === 'draw' && !replay)) {
     homeBonusAmount = calculateRoundBonus(round, teams[homeName].stars);
     awayBonusAmount = calculateRoundBonus(round, teams[awayName].stars);
   }
@@ -743,7 +800,7 @@ function computePenaltyResults() {
   return { home, away };
 }
 
-function startPenaltyShootout(homeName, awayName, round, homeGoals, awayGoals) {
+function startPenaltyShootout(homeName, awayName, round, homeGoals, awayGoals, replay) {
   const penResults = computePenaltyResults();
 
   const sequence = [];
@@ -763,15 +820,15 @@ function startPenaltyShootout(homeName, awayName, round, homeGoals, awayGoals) {
     document.getElementById('reportResult').innerText = 'Penalty Shoot Out in Play';
     document.getElementById('penaltyCirclesSection').classList.remove('hidden');
     window.Analytics?.logPenaltyShootoutStarted({ home_team: homeName, away_team: awayName, score_at_90_mins: `${homeGoals}-${awayGoals}` });
-    animateKicks(sequence, 0, 0, 0, round, homeName, awayName);
+    animateKicks(sequence, 0, 0, 0, round, homeName, awayName, replay);
   };
 
   document.getElementById('matchReportModal').classList.remove('hidden');
 }
 
-function animateKicks(sequence, index, homeScore, awayScore, round, homeName, awayName) {
+function animateKicks(sequence, index, homeScore, awayScore, round, homeName, awayName, replay) {
   if (index >= sequence.length) {
-    finishShootout(homeScore, awayScore, round, homeName, awayName, sequence.length);
+    finishShootout(homeScore, awayScore, round, homeName, awayName, sequence.length, replay);
     return;
   }
 
@@ -804,18 +861,18 @@ function animateKicks(sequence, index, homeScore, awayScore, round, homeName, aw
 
     if (homeCannotWin || awayCannotWin) {
       setTimeout(() => {
-        finishShootout(newHomeScore, newAwayScore, round, homeName, awayName, index + 1);
+        finishShootout(newHomeScore, newAwayScore, round, homeName, awayName, index + 1, replay);
       }, PEN_KICK_DURATION_MS * 0.2);
       return;
     }
 
     setTimeout(() => {
-      animateKicks(sequence, index + 1, newHomeScore, newAwayScore, round, homeName, awayName);
+      animateKicks(sequence, index + 1, newHomeScore, newAwayScore, round, homeName, awayName, replay);
     }, PEN_KICK_DURATION_MS * 0.2);
   }, PEN_KICK_DURATION_MS * 0.8);
 }
 
-function finishShootout(homeScore, awayScore, round, homeName, awayName, kicksTaken) {
+function finishShootout(homeScore, awayScore, round, homeName, awayName, kicksTaken, replay) {
   // Derive winner from actual kick results (coin flip if somehow level — safety net only)
   let winnerKey;
   if (homeScore > awayScore) {
@@ -838,7 +895,7 @@ function finishShootout(homeScore, awayScore, round, homeName, awayName, kicksTa
   document.getElementById('penaltyCirclesSection').classList.add('hidden');
 
   // Calculate earnings now that we know the winner
-  const prize = calculatePrizeMoney(homeName, winnerKey, round);
+  const prize = calculatePrizeMoney(homeName, winnerKey, round, replay);
   document.querySelector('#ticketHome p').textContent = formatMoney(prize.home);
   document.querySelector('#ticketAway p').textContent = formatMoney(prize.away);
 
@@ -881,11 +938,11 @@ function finishShootout(homeScore, awayScore, round, homeName, awayName, kicksTa
 function openMatchInfoModal() {
   const round    = document.getElementById('roundSelect').value;
   const homeName = document.getElementById('teamSelectHome').value;
-  const data     = roundData[round] || {};
+  const data     = activeRoundData()[round] || {};
   document.getElementById('matchInfoRound').textContent   = round || '—';
   document.getElementById('matchInfoKickoff').textContent = data.kickoff || '—';
-  document.getElementById('matchInfoStadium').textContent = isWembley(round) ? 'Wembley' : (teams[homeName]?.stadium || '—');
-  document.getElementById('matchInfoPrize').textContent   = isWembley(round) ? (data.revenue || '—') : (teams[homeName] ? formatMoney(teams[homeName].gate) : '—');
+  document.getElementById('matchInfoStadium').textContent = isFixedVenue(round) ? (data.stadium || '—') : (teams[homeName]?.stadium || '—');
+  document.getElementById('matchInfoPrize').textContent   = isFixedVenue(round) ? (data.revenue || '—') : (teams[homeName] ? formatMoney(teams[homeName].gate) : '—');
   document.getElementById('matchInfoDraw').textContent    = data.ifDraw || '—';
 
   document.getElementById('matchInfoModal').classList.remove('hidden');
@@ -905,7 +962,7 @@ function renderHeroReport(heroResult) {
     return;
   }
 
-  const posColors = POSITION_COLORS;
+  const posColors = getPositionColors();
 
   function buildSlots(events) {
     const slots = [...events];
@@ -920,7 +977,7 @@ function renderHeroReport(heroResult) {
           <img src="${HEROES_PATH}${ev.id}.png" class="hero-report-photo" alt="${ev.name}" onerror="this.src='${HEROES_PATH}${ev.id}.jpg';this.onerror=function(){this.style.display='none';this.nextElementSibling.style.display=''}">
           <span style="display:none">${initials}</span>
         </div>
-        <span class="hero-report-pos">${ev.position}</span>
+        <span class="hero-report-pos">${getPositionLabel(ev.position)}</span>
         <div class="hero-report-tooltip">${ev.tooltip}</div>
       </div>`;
     }).join('');
@@ -998,9 +1055,9 @@ function updateStarSlots(side) {
     if (!slot) return;
     const isFilled = selected.includes(pos);
     slot.classList.toggle('hero-slot--star-filled', isFilled);
-    slot.style.background = isFilled ? POSITION_COLORS[pos] : '';
+    slot.style.background = isFilled ? getPositionColors()[pos] : '';
     slot.style.boxShadow = '';
-    slot.innerHTML = `<span class="hero-slot-label">${pos}</span>`;
+    slot.innerHTML = `<span class="hero-slot-label">${getPositionLabel(pos)}</span>`;
   });
 }
 
@@ -1036,7 +1093,8 @@ function advanceDemoPanel() {
 }
 
 function setSkin(skin) {
-  if (document.body.dataset.theme !== skin) window.Analytics?.logSkinChanged({ from_skin: document.body.dataset.theme, to_skin: skin });
+  const prevSkin = document.body.dataset.theme;
+  if (prevSkin !== skin) window.Analytics?.logSkinChanged({ from_skin: prevSkin, to_skin: skin });
   document.body.dataset.theme = skin;
   const labels = { classic: 'Classic 2016', sky: 'Sky 2016', retro: 'Retro', supporter: 'Supporter 2016' };
   document.getElementById('skinToggle').textContent = (labels[skin] || skin) + ' ▾';
@@ -1044,6 +1102,37 @@ function setSkin(skin) {
     btn.style.display = btn.dataset.skin === skin ? 'none' : '';
   });
   document.getElementById('skinDropdown').classList.add('hidden');
+  if (skin !== prevSkin) {
+    updateRoundOptions(skin);
+    updatePositionLabels(skin);
+    updateRoundUI();
+  }
+  if (isRetroSkin(skin) && !isRetroSkin(prevSkin)) {
+    fetchTeams(RETRO_SHEET_CSV_URL, 'wembley-teams-retro');
+  } else if (!isRetroSkin(skin) && isRetroSkin(prevSkin)) {
+    fetchTeams();
+  }
+}
+
+function updateRoundOptions(skin) {
+  const select  = document.getElementById('roundSelect');
+  const options = isRetroSkin(skin)
+    ? ['3rd Round', '4th Round', '5th Round', 'Semi Final', 'Final']
+    : ['Round of 32', 'Round of 16', 'Quarter Final', 'Semi Final', 'Final'];
+  select.innerHTML = options.map(r => `<option value="${r}">${r}</option>`).join('');
+  select.value = options[0];
+}
+
+function updatePositionLabels(skin) {
+  const labels = isRetroSkin(skin) ? RETRO_POSITION_LABELS : { GK: 'GK', DEF: 'DEF', MID: 'MID', STR: 'STR' };
+  document.querySelectorAll('.hero-slot-label').forEach(el => {
+    const pos = el.closest('[data-position]')?.dataset.position;
+    if (pos) el.textContent = labels[pos] || pos;
+  });
+  document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
+    const pos = btn.dataset.filter;
+    if (pos && pos !== 'All') btn.textContent = labels[pos] || pos;
+  });
 }
 
 function openHeroUnlockModal() {
@@ -1092,7 +1181,7 @@ function renderHeroCards(side, filter) {
     const atMax         = selected.length >= 3 && !isSelected && !posConflict;
     const isDisabled    = !isUnavailable && !isSelected && (atMax || takenByOther);
     const initials      = hero.name.slice(0, 2).toUpperCase();
-    const bgColor       = POSITION_COLORS[hero.position] || '#333';
+    const bgColor       = getPositionColors()[hero.position] || '#333';
     const stateClass    = isUnavailable ? ' hero-card--locked' : (isSelected ? ' hero-card--selected' : (isDisabled ? ' hero-card--disabled' : ''));
     const onclick       = isUnavailable ? `openHeroUnlockModal()` : `toggleHero('${side}', '${hero.id}')`;
 
@@ -1105,7 +1194,7 @@ function renderHeroCards(side, filter) {
       </div>
       <div class="hero-card-name">${hero.name}</div>
       <div class="hero-card-meta">
-        <span class="hero-card-meta-pos">${hero.position}</span>
+        <span class="hero-card-meta-pos">${getPositionLabel(hero.position)}</span>
         <span class="hero-card-meta-price">${formatMoney(hero.price)}</span>
       </div>
       <div class="hero-card-bonus">${hero.primary_description}</div>
@@ -1161,13 +1250,13 @@ function updateHeroSummary(side) {
     const heroId = selected.find(id => heroes[id]?.position === pos);
     if (heroId) {
       const hero = heroes[heroId];
-      slot.style.background = POSITION_COLORS[pos];
-      slot.style.boxShadow = 'inset 0 0 0 4px ' + POSITION_COLORS[pos];
+      slot.style.background = getPositionColors()[pos];
+      slot.style.boxShadow = 'inset 0 0 0 4px ' + getPositionColors()[pos];
       slot.innerHTML = `<img src="${HEROES_PATH}${hero.id}.png" class="hero-slot-photo" alt="${hero.name}" onerror="this.src='${HEROES_PATH}${hero.id}.jpg';this.onerror=function(){this.style.display='none';this.nextElementSibling.style.display='block'}"><span class="hero-slot-initials" style="display:none">${hero.name.slice(0, 2).toUpperCase()}</span>`;
     } else {
       slot.style.background = '';
       slot.style.boxShadow = '';
-      slot.innerHTML = `<span class="hero-slot-label">${pos}</span>`;
+      slot.innerHTML = `<span class="hero-slot-label">${getPositionLabel(pos)}</span>`;
     }
   });
 }
@@ -1268,9 +1357,6 @@ window.addEventListener('load', function () {
       if (skin === 'supporter') {
         document.getElementById('skinDropdown').classList.add('hidden');
         document.getElementById('supporterModal').classList.remove('hidden');
-      } else if (skin === 'retro') {
-        document.getElementById('skinDropdown').classList.add('hidden');
-        document.getElementById('skinProductionModal').classList.remove('hidden');
       } else {
         setSkin(skin);
       }
