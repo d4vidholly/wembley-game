@@ -1784,6 +1784,12 @@ body[data-theme="retro"]::after {
   box-shadow: none;
 }
 
+[data-theme="retro"] .info-icon-box img,
+[data-theme="retro"] #ticket-icon-report,
+[data-theme="retro"] #prize-icon {
+  filter: sepia(1) saturate(0.6) brightness(0.55);
+}
+
 /* ── Hero slots (team panel) ────────────────────────────── */
 [data-theme="retro"] .hero-slot {
   background: var(--accent-subtle);
