@@ -12,7 +12,7 @@ const BADGES_PATH          = 'badges/';
 const HEROES_PATH          = 'heroes/';
 const CACHE_TTL_MS         = 15 * 60 * 1000; // re-fetch sheets after 15 minutes
 const POSITION_COLORS       = { GK: '#B8413B', DEF: '#AAA54A', MID: '#31813C', STR: '#BBBCB9' };
-const RETRO_POSITION_COLORS = { GK: '#B8413B', DEF: '#31813C', MID: '#AAA54A', STR: '#BBBCB9' };
+const RETRO_POSITION_COLORS = { GK: '#B8413B', DEF: '#31813C', MID: '#7a6f1e', STR: '#524f4c' };
 const RETRO_POSITION_LABELS = { GK: 'GK', DEF: 'IF', MID: 'OF', STR: 'CF' };
 const UNLOCK_HASH          = '72b636044cc9db44dd3832b5d99865b3404c250b22738320a19ac334da4eedeb';
 
@@ -1096,7 +1096,7 @@ function setSkin(skin) {
   const prevSkin = document.body.dataset.theme;
   if (prevSkin !== skin) window.Analytics?.logSkinChanged({ from_skin: prevSkin, to_skin: skin });
   document.body.dataset.theme = skin;
-  const labels = { classic: 'Classic 2016', sky: 'Sky 2016', retro: 'Retro', supporter: 'Supporter 2016' };
+  const labels = { classic: 'Classic 2016', sky: 'Sky 2016', retro: 'Retro 1960', supporter: 'Supporter 2016' };
   document.getElementById('skinToggle').textContent = (labels[skin] || skin) + ' ▾';
   document.querySelectorAll('.skin-option[data-skin]').forEach(btn => {
     btn.style.display = btn.dataset.skin === skin ? 'none' : '';
@@ -1179,11 +1179,15 @@ function renderHeroCards(side, filter) {
     const takenByOther  = !isSelected && otherSelected.includes(hero.id);
     const posConflict   = selected.some(id => heroes[id]?.position === hero.position && id !== hero.id);
     const atMax         = selected.length >= 3 && !isSelected && !posConflict;
-    const isDisabled    = !isUnavailable && !isSelected && (atMax || takenByOther);
     const initials      = hero.name.slice(0, 2).toUpperCase();
     const bgColor       = getPositionColors()[hero.position] || '#333';
-    const stateClass    = isUnavailable ? ' hero-card--locked' : (isSelected ? ' hero-card--selected' : (isDisabled ? ' hero-card--disabled' : ''));
-    const onclick       = isUnavailable ? `openHeroUnlockModal()` : `toggleHero('${side}', '${hero.id}')`;
+    let stateClass;
+    if (isUnavailable)     stateClass = ' hero-card--locked';
+    else if (isSelected)   stateClass = ' hero-card--selected';
+    else if (atMax)        stateClass = ' hero-card--max';
+    else if (takenByOther) stateClass = ' hero-card--disabled';
+    else                   stateClass = '';
+    const onclick = isUnavailable ? `openHeroUnlockModal()` : atMax ? `showMaxHeroesToast()` : `toggleHero('${side}', '${hero.id}')`;
 
     return `<div class="hero-card${stateClass}" style="--pos-color: ${bgColor}" onclick="${onclick}">
       <div class="hero-card-image" style="background: ${bgColor}">
@@ -1230,6 +1234,14 @@ function toggleHero(side, heroId) {
   renderHeroCards(side, currentFilter);
   updateHeroCount(side);
   updateHeroSummary(side);
+}
+
+function showMaxHeroesToast() {
+  const toast = document.getElementById('heroMaxToast');
+  toast.textContent = 'Maximum Heroes: 3';
+  toast.classList.remove('hidden');
+  clearTimeout(toast._dismissTimer);
+  toast._dismissTimer = setTimeout(() => toast.classList.add('hidden'), 2000);
 }
 
 function updateHeroCount(side) {

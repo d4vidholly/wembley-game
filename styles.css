@@ -113,8 +113,8 @@ header {
 
 
 .wembley-logo {
-  height: 74px;
-  max-height: 74px;
+  height: 111px;
+  max-height: 111px;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1266,7 +1266,7 @@ header {
   transition: filter 0.15s, transform 0.1s;
 }
 
-.hero-card:hover:not(.hero-card--disabled):not(.hero-card--locked) {
+.hero-card:hover:not(.hero-card--disabled):not(.hero-card--locked):not(.hero-card--max) {
   filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.25));
   transform: translateY(-2px);
 }
@@ -1279,6 +1279,11 @@ header {
 .hero-card--disabled {
   opacity: 0.4;
   pointer-events: none;
+}
+
+.hero-card--max {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .hero-card--locked {
@@ -1668,7 +1673,8 @@ body[data-theme="sky"] {
   --accent:        #7b2a22;
   --accent-subtle: rgba(123, 42, 34, 0.08);
   --accent-glow:   rgba(123, 42, 34, 0.25);
-  --accent-gold:   #b08d57;
+  --accent-gold:      #b08d57;
+  --accent-gold-dark: #7a5e34;
   --overlay-bg:    rgba(74, 58, 38, 0.85);
 }
 
@@ -1719,6 +1725,7 @@ body[data-theme="retro"]::after {
 [data-theme="retro"] .skin-toggle {
   border: 1px solid rgba(241, 228, 200, 0.4);
   color: #f1e4c8;
+  opacity: 1;
 }
 
 [data-theme="retro"] .skin-dropdown {
@@ -1776,6 +1783,12 @@ body[data-theme="retro"]::after {
   font-family: 'Crimson Text', serif;
   font-size: 16px;
   border: 1px solid var(--border);
+}
+
+[data-theme="retro"] .team-select:focus,
+[data-theme="retro"] .round-dropdown:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 [data-theme="retro"] .info-icon-box {
@@ -1880,7 +1893,7 @@ body[data-theme="retro"]::after {
   box-shadow: 0 2px 6px rgba(74, 58, 38, 0.15);
 }
 
-[data-theme="retro"] .hero-card:hover:not(.hero-card--disabled):not(.hero-card--locked) {
+[data-theme="retro"] .hero-card:hover:not(.hero-card--disabled):not(.hero-card--locked):not(.hero-card--max) {
   filter: none;
   box-shadow: 0 4px 10px rgba(74, 58, 38, 0.22);
   transform: none;
@@ -1903,6 +1916,10 @@ body[data-theme="retro"]::after {
 [data-theme="retro"] .hero-card-meta {
   background: rgba(74, 58, 38, 0.08);
   color: var(--text-colour);
+}
+
+[data-theme="retro"] .hero-card-meta-pos {
+  color: var(--main-light);
 }
 
 [data-theme="retro"] .hero-card-bonus {
@@ -1943,8 +1960,8 @@ body[data-theme="retro"]::after {
 }
 
 [data-theme="retro"] .pen-circle--scored {
-  background: var(--accent-gold);
-  border-color: var(--accent-gold);
+  background: var(--accent-gold-dark);
+  border-color: var(--accent-gold-dark);
   box-shadow: none;
 }
 
@@ -1954,7 +1971,7 @@ body[data-theme="retro"]::after {
   box-shadow: none;
 }
 
-[data-theme="retro"] .pen-label--scored { color: var(--accent-gold); }
+[data-theme="retro"] .pen-label--scored { color: var(--accent-gold-dark); }
 [data-theme="retro"] .pen-label--missed { color: var(--main-dark); }
 
 /* ── Hero report slots ──────────────────────────────────── */
@@ -2445,7 +2462,7 @@ body[data-theme="supporter"] {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
 }
 
-[data-theme="supporter"] .hero-card:hover:not(.hero-card--disabled):not(.hero-card--locked) {
+[data-theme="supporter"] .hero-card:hover:not(.hero-card--disabled):not(.hero-card--locked):not(.hero-card--max) {
   border-color: rgba(201, 162, 39, 0.55);
   box-shadow: 0 0 18px rgba(201, 162, 39, 0.18), 0 4px 20px rgba(0, 0, 0, 0.6);
   transform: translateY(-2px);
@@ -2605,6 +2622,42 @@ body[data-theme="supporter"] {
   opacity: 0.75;
 }
 
+/* ── Retro position key (info modal) ───────────────────── */
+.retro-position-key { display: none; }
+
+[data-theme="retro"] .retro-position-key {
+  display: block;
+  font-style: italic;
+  font-size: 13px;
+  margin-top: 8px;
+  opacity: 0.85;
+}
+
+/* ── Maximum-heroes toast ───────────────────────────────── */
+.hero-max-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111827;
+  color: #ffffff;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-radius: 3px;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+[data-theme="retro"] .hero-max-toast {
+  background: var(--main-dark);
+  color: var(--main-light);
+  border: 1px solid var(--border);
+  font-family: 'Crimson Text', serif;
+  letter-spacing: 1px;
+}
+
 /* ═══════════════════════════════════════════════════════════
    MOBILE OVERRIDES
 ═══════════════════════════════════════════════════════════ */
@@ -2621,8 +2674,8 @@ body[data-theme="supporter"] {
 
   .wembley-logo {
     display: block;
-    height: 50px;
-    max-height: 50px;
+    height: 75px;
+    max-height: 75px;
   }
 
   .skin-toggle {
